@@ -27,11 +27,11 @@ with st.sidebar:
     st.header("👤 Kisaan Profile")
 
     with st.form("farmer_form"):
-        name = st.text_input("Naam", "Ali Ahmed")
-        phone = st.text_input("Phone", "03001234567")
-        district = st.selectbox("Zila", ["Gujranwala", "Faisalabad", "Lahore", "Multan", "Sialkot"])
-        farm_size = st.number_input("Zameen (acres)", min_value=0.5, max_value=500.0, value=8.0)
-        primary_crop = st.selectbox("Main Fasal", ["Wheat", "Rice", "Cotton", "Sugarcane", "Vegetables"])
+        name = st.text_input("Naam", "Ali Ahmed", key="sb_name")
+        phone = st.text_input("Phone", "03001234567", key="sb_phone")
+        district = st.selectbox("Zila", ["Gujranwala", "Faisalabad", "Lahore", "Multan", "Sialkot"], key="sb_district")
+        farm_size = st.number_input("Zameen (acres)", min_value=0.5, max_value=500.0, value=8.0, key="sb_farm_size")
+        primary_crop = st.selectbox("Main Fasal", ["Wheat", "Rice", "Cotton", "Sugarcane", "Vegetables"], key="sb_crop")
 
         submitted = st.form_submit_button("✅ Save Profile")
         if submitted:
@@ -163,8 +163,8 @@ with tab1:
         col1, col2 = st.columns([1, 1.2])
 
         with col1:
-            crop = st.text_input("Fasal Ka Naam", primary_crop)
-            uploaded = st.file_uploader("Tasweer", type=["jpg", "png", "jpeg"])
+            crop = st.text_input("Fasal Ka Naam", primary_crop, key="cd_crop")
+            uploaded = st.file_uploader("Tasweer", type=["jpg", "png", "jpeg"], key="cd_image")
 
             if uploaded and st.button("🔍 Diagnose", type="primary", use_container_width=True):
                 with st.spinner("Dr. Zarai dekh raha hai..."):
@@ -204,9 +204,9 @@ with tab2:
         col1, col2 = st.columns([1, 1.2])
 
         with col1:
-            sale_crop = st.text_input("Bechnay Wali Fasal", primary_crop)
-            qty = st.text_input("Miqdaar", "1000 kg")
-            offered = st.number_input("Aarti Ne Kitni Di? (PKR/kg)", min_value=1, value=25)
+            sale_crop = st.text_input("Bechnay Wali Fasal", primary_crop, key="pc_crop")
+            qty = st.text_input("Miqdaar", "1000 kg", key="pc_qty")
+            offered = st.number_input("Aarti Ne Kitni Di? (PKR/kg)", min_value=1, value=25, key="pc_offered")
 
             if st.button("🧮 Analyze Price", type="primary", use_container_width=True):
                 with st.spinner("Mandi rates check ho rahe hain..."):
@@ -253,11 +253,11 @@ with tab3:
         farmer_id = st.session_state["farmer"]["id"]
         farmer_district = st.session_state["farmer"]["district"]
 
-        soil_crop = st.text_input("Fasal", primary_crop)
-        soil_type = st.selectbox("Mitti", ["Unknown", "Sandy", "Clay", "Loamy"])
-        prev = st.selectbox("Pichli Fasal", ["None", "Wheat", "Rice", "Cotton"])
+        soil_crop = st.text_input("Fasal", primary_crop, key="sa_crop")
+        soil_type = st.selectbox("Mitti", ["Unknown", "Sandy", "Clay", "Loamy"], key="sa_soil")
+        prev = st.selectbox("Pichli Fasal", ["None", "Wheat", "Rice", "Cotton"], key="sa_prev")
         question = st.text_area("Apna sawal likhein",
-            "Gandum ke liye kaunsa khad behtar hai?")
+            "Gandum ke liye kaunsa khad behtar hai?", key="sa_question")
 
         if st.button("🌾 Get Advice", type="primary"):
             with st.spinner("ZaminExpert soch raha hai..."):
@@ -293,10 +293,10 @@ with tab4:
     else:
         farmer_id = st.session_state["farmer"]["id"]
 
-        buyer = st.text_input("Kharidaar Ka Naam", "Local Aarti")
-        deal_crop = st.text_input("Fasal", primary_crop)
-        deal_qty = st.text_input("Miqdaar", "500 kg")
-        deal_price = st.number_input("Qeemat (PKR/kg)", min_value=1, value=25)
+        buyer = st.text_input("Kharidaar Ka Naam", "Local Aarti", key="dg_buyer")
+        deal_crop = st.text_input("Fasal", primary_crop, key="dg_crop")
+        deal_qty = st.text_input("Miqdaar", "500 kg", key="dg_qty")
+        deal_price = st.number_input("Qeemat (PKR/kg)", min_value=1, value=25, key="dg_price")
 
         if st.button("📋 Generate Contract", type="primary"):
             with st.spinner("Contract tayyar ho raha hai..."):

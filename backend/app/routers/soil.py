@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
@@ -9,12 +9,12 @@ router = APIRouter(prefix="/soil", tags=["Soil Advisor"])
 
 @router.post("/advise")
 def soil_advise(
-    farmer_id: int,
-    location: str,
-    current_crop: str,
-    previous_crop: str = "unknown",
-    soil_type: str = "unknown",
-    question: str = "",
+    farmer_id: int = Form(...),
+    location: str = Form(...),
+    current_crop: str = Form(...),
+    previous_crop: str = Form("unknown"),
+    soil_type: str = Form("unknown"),
+    question: str = Form(""),
     db: Session = Depends(get_db)
 ):
     """Get soil and fertilizer advice from ZaminExpert."""

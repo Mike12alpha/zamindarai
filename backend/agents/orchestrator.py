@@ -1,8 +1,11 @@
 import json
+import os
 from typing import Optional, Dict, Any
 from langchain_openai import ChatOpenAI
 from agents import get_agent
 from core.urdu_utils import RomanUrduProcessor
+
+DEMO_MODE = os.getenv("DEMO_MODE", "").lower() in ("1", "true", "yes")
 
 
 class KisanCouncilOrchestrator:
@@ -18,18 +21,31 @@ class KisanCouncilOrchestrator:
         return self._llm
 
     def predict(self, prompt: str) -> str:
-        """Wrapper for LangChain 1.x compatibility."""
-        return self.llm.invoke(prompt).content
+        if DEMO_MODE:
+            # Return a realistic demo plan/response
+            if "Secretary" in prompt:
+                return json.dumps({
+                    "agents_needed": ["CropDoctor", "PriceOracle"],
+                    "reasoning": "Demo: Farmer mentioned crop disease and price concern",
+                    "entities": {"crop": "wheat", "offered_price": 25, "quantity": "1000 kg", "district": "Lahore"},
+                    "urgency": "high"
+                })
+            if "Chairman" in prompt:
+                return "Bhai jaan, aapki fasal mein zard dhabbay hain. Ye Yellow Rust hai. Bayleton 400g per acre spray karein. Aarti ka rate PKR 25/kg theek hai, mandi rate PKR 24/kg hai. Koi nuksaan nahi."
+            return "Demo mode response."
+        try:
+            return self.llm.invoke(prompt).content
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "quota" in error_msg or "429" in error_msg or "insufficient_quota" in error_msg:
+                return "Maaf kijiye, AI service filhal band hai. Admin se OpenAI billing check karwain."
+            return f"AI error: {str(e)[:200]}"
 
     def plan(self, user_message: str, has_image: bool = False) -> Dict[str, Any]:
-        """The brain decides which agents to call and extracts entities."""
-
-        # Normalize Roman Urdu for better matching
         normalized = RomanUrduProcessor.normalize(user_message)
-
         prompt = f"""You are the Kisan Council Secretary. Analyze this farmer message and decide which experts to summon.
 
-Farmer Message: "{user_message}"
+Farmer Message: "{normalized}"
 Image attached: {"Yes" if has_image else "No"}
 
 Available Experts:
@@ -54,18 +70,23 @@ Return ONLY valid JSON:
 }}"""
 
         raw = self.predict(prompt)
-        # Extract JSON if wrapped in markdown
         raw = raw.replace("```json", "").replace("```", "").strip()
-        return json.loads(raw)
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            # Fallback plan for demo/error cases
+            return {
+                "agents_needed": ["CropDoctor"] if has_image else ["PriceOracle"],
+                "reasoning": "Fallback plan due to parsing error",
+                "entities": {},
+                "urgency": "medium"
+            }
 
     def execute(self, plan: Dict, farmer_id: int, image_bytes: Optional[bytes] = None,
                 db_farmer=None, user_message: str = "") -> Dict[str, Any]:
-        """Execute the plan by calling agents in parallel where possible."""
-
         results = {}
         entities = plan.get("entities", {})
 
-        # --- CALL 1: Crop Doctor ---
         if "CropDoctor" in plan["agents_needed"]:
             agent = get_agent("crop_doctor")
             crop = entities.get("crop", "unknown")
@@ -74,7 +95,6 @@ Return ONLY valid JSON:
             }
             results["crop_doctor"] = res
 
-        # --- CALL 2: Price Oracle ---
         if "PriceOracle" in plan["agents_needed"]:
             agent = get_agent("price_oracle")
             res = agent.run(
@@ -85,7 +105,6 @@ Return ONLY valid JSON:
             )
             results["price_oracle"] = res
 
-        # --- CALL 3: Soil Advisor ---
         if "SoilAdvisor" in plan["agents_needed"]:
             agent = get_agent("soil_advisor")
             res = agent.run(
@@ -97,10 +116,8 @@ Return ONLY valid JSON:
             )
             results["soil_advisor"] = res
 
-        # --- CALL 4: Deal Guardian ---
         if "DealGuardian" in plan["agents_needed"]:
             agent = get_agent("deal_guardian")
-            # If price oracle already ran, pass its market rate
             market_rate = None
             if "price_oracle" in results:
                 market_rate = results["price_oracle"].get("market_rate")
@@ -118,8 +135,6 @@ Return ONLY valid JSON:
         return results
 
     def synthesize(self, user_message: str, plan: Dict, results: Dict) -> str:
-        """Merge all agent outputs into one coherent Roman Urdu response."""
-
         prompt = f"""You are the Kisan Council Chairman. A farmer asked: "{user_message}"
 
 You summoned these experts and got their reports:
@@ -130,7 +145,7 @@ Write ONE unified response in Roman Urdu that:
 2. Answers all parts of their question in order of urgency
 3. Uses simple farming language
 4. Gives clear next steps (exact actions, not just advice)
-5. Warns clearly if they are being exploited (use emoji)
+5. Warns clearly if they are being exploited
 
 Response:"""
 

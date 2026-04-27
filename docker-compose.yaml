@@ -29,6 +29,7 @@ services:
       SERPAPI_KEY: ${SERPAPI_KEY}
       APP_SECRET_KEY: ${APP_SECRET_KEY}
       PYTHONUNBUFFERED: "1"
+      DEMO_MODE: ${DEMO_MODE:-true}
     volumes:
       - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/uploads:/app/uploads
       - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/contracts:/app/contracts
