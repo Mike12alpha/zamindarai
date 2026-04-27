@@ -39,6 +39,16 @@ app.include_router(impact.router)
 app.include_router(whatsapp.router)
 
 
+@app.get("/")
+def root():
+    return {
+        "service": "ZamindarAI API",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "ZamindarAI", "version": "1.0.0"}
