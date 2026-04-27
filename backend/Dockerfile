@@ -2,9 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# System deps: build tools, PostgreSQL client libs, curl
+# System deps: build tools, PostgreSQL client libs + psql CLI, curl
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential gcc libpq-dev python3-dev pkg-config curl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -27,5 +28,5 @@ RUN mkdir -p uploads uploads/audio contracts qr_codes chroma_db
 # Expose FastAPI port
 EXPOSE 8000
 
-# Startup: ingest docs, create tables, start server
+# Startup: check/create DB, ingest docs, start server
 CMD ["./startup.sh"]
