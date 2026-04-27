@@ -4,9 +4,6 @@ from app.routers import farmers, diagnoses, prices, contracts, council, impact, 
 from app.database import Base, engine
 from app.scheduler import scheduler
 
-# Create tables on startup
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI(
     title="ZamindarAI API",
     description="AI-powered agricultural protection system for Pakistani farmers",
@@ -15,12 +12,16 @@ app = FastAPI(
 
 
 @app.on_event("startup")
-def start_scheduler():
+def on_startup():
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"[STARTUP] DB init warning: {e}")
     scheduler.start()
 
 
 @app.on_event("shutdown")
-def stop_scheduler():
+def on_shutdown():
     scheduler.shutdown()
 
 app.add_middleware(

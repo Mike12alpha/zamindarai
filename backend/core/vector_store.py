@@ -5,7 +5,7 @@ from langchain_core.documents import Document
 import os
 
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-PERSIST_DIR = "./chroma_db"
+PERSIST_DIR = "/app/chroma_db"
 
 
 class KnowledgeBase:
@@ -33,5 +33,11 @@ class KnowledgeBase:
         return store.similarity_search(query, k=k)
 
 
-# Singleton
-kb = KnowledgeBase()
+# Lazy singleton
+_kb = None
+
+def get_kb():
+    global _kb
+    if _kb is None:
+        _kb = KnowledgeBase()
+    return _kb

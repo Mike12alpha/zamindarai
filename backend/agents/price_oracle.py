@@ -1,5 +1,5 @@
 from agents.base import BaseAgent
-from core.vector_store import kb
+from core.vector_store import get_kb
 import os
 
 
@@ -10,6 +10,7 @@ class PriceOracleAgent(BaseAgent):
 
     def get_kb_prices(self, crop: str, location: str) -> str:
         query = f"{crop} {location} mandi price Pakistan 2025"
+        kb = get_kb()
         docs = kb.search(query, "mandi_prices", k=5)
         return self.format_sources(docs)
 

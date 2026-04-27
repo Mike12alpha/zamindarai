@@ -1,5 +1,5 @@
 from agents.base import BaseAgent
-from core.vector_store import kb
+from core.vector_store import get_kb
 
 
 class SoilAdvisorAgent(BaseAgent):
@@ -10,6 +10,7 @@ class SoilAdvisorAgent(BaseAgent):
             soil_type: str, question: str) -> dict:
 
         query = f"{location} {soil_type} {current_crop} {previous_crop} fertilizer Pakistan"
+        kb = get_kb()
         docs = kb.search(query, "soil_guides", k=4)
         context = self.format_sources(docs)
 

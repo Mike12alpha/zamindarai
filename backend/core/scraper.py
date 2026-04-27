@@ -1,5 +1,5 @@
 from datetime import datetime
-from core.vector_store import kb
+from core.vector_store import get_kb
 from langchain_core.documents import Document
 
 
@@ -30,6 +30,7 @@ class MandiScraper:
                 }))
 
             # In production, replace with actual BeautifulSoup parsing
+            kb = get_kb()
             kb.ingest(docs, "mandi_prices_live")
             return len(docs)
         except Exception as e:

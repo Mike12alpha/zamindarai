@@ -1,5 +1,5 @@
 from agents.base import BaseAgent
-from core.vector_store import kb
+from core.vector_store import get_kb
 from PIL import Image
 import io
 
@@ -29,6 +29,7 @@ class CropDoctorAgent(BaseAgent):
         vision_result = self.analyze_image(image_bytes)
 
         query = f"{crop_type} disease symptoms treatment pesticide Pakistan"
+        kb = get_kb()
         docs = kb.search(query, "crop_diseases", k=3)
         context = self.format_sources(docs)
 
