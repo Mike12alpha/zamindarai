@@ -1,13 +1,19 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# System deps for Pillow and builds
+# System deps: build tools, PostgreSQL client libs, curl
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc libpq-dev curl && rm -rf /var/lib/apt/lists/*
+    build-essential gcc libpq-dev python3-dev pkg-config curl \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Install CPU-only PyTorch first to avoid OOM on small builders,
+# then remaining packages.
+RUN pip install --no-cache-dir \
+    torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Copy application
 COPY . .
