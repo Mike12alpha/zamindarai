@@ -44,7 +44,11 @@ with st.sidebar:
                     st.session_state["farmer"] = res.json()
                     st.success("Profile saved!")
                 else:
-                    st.error(f"Error: {res.status_code}")
+                    try:
+                        detail = res.json().get("detail", res.text)
+                    except Exception:
+                        detail = res.text or f"HTTP {res.status_code}"
+                    st.error(f"Error: {detail}")
             except Exception as e:
                 st.error(f"Connection error: {e}")
 
