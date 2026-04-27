@@ -4,6 +4,7 @@ from app.routers import farmers, diagnoses, prices, contracts, council, impact, 
 from app.database import Base, engine, make_engine
 from app.config import get_settings
 from app.scheduler import scheduler
+import app.database as db_module
 
 app = FastAPI(
     title="ZamindarAI API",
@@ -26,10 +27,10 @@ def on_startup():
             print(f"[STARTUP] Falling back to SQLite: {fallback_url}")
             fallback_engine = make_engine(fallback_url)
             Base.metadata.create_all(bind=fallback_engine)
-            # Rebind session to fallback engine
+            # Rebind database module globals so get_db() uses fallback
             from sqlalchemy.orm import sessionmaker
-            global SessionLocal
-            SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=fallback_engine)
+            db_module.engine = fallback_engine
+            db_module.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=fallback_engine)
     scheduler.start()
 
 
