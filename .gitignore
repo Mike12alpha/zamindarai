@@ -1,0 +1,43 @@
+# === SECRETS ===
+.env
+.env.*
+*.pem
+*.key
+
+# === PYTHON ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.venv/
+venv/
+
+# === DATABASES & VECTOR STORES ===
+*.db
+*.sqlite
+*.sqlite3
+chroma_db/
+
+# === UPLOADS & GENERATED FILES ===
+uploads/
+contracts/
+qr_codes/
+data/
+
+# === DOCKER ===
+.docker/
+
+# === IDEs ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === LOGS ===
+*.log
