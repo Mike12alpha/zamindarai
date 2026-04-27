@@ -1,0 +1,69 @@
+import hashlib
+import qrcode
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+import os
+import time
+
+
+def generate_notarized_contract(contract_text: str, farmer_name: str,
+                                buyer_name: str, crop: str, price: float) -> dict:
+    """Generate tamper-proof contract with QR verification."""
+
+    ts = int(time.time())
+    filename_base = f"{farmer_name.replace(' ', '_')}_{ts}"
+
+    os.makedirs("contracts", exist_ok=True)
+    os.makedirs("qr_codes", exist_ok=True)
+
+    pdf_path = f"contracts/{filename_base}.pdf"
+
+    # Build PDF
+    c = canvas.Canvas(pdf_path, pagesize=A4)
+    c.setTitle("ZamindarAI Sale Agreement")
+
+    # Header
+    c.setFont("Helvetica-Bold", 18)
+    c.drawString(50, 800, "ZAMINDARAI - KISAAN PROTECTION SYSTEM")
+    c.setFont("Helvetica", 10)
+    c.drawString(50, 780, "Verified by AI | Tamper-Proof Record | Generated via Kisan Council")
+
+    c.line(50, 770, 550, 770)
+
+    # Body
+    c.setFont("Helvetica", 12)
+    y = 740
+    for line in contract_text.split("\n"):
+        c.drawString(50, y, line[:90])  # Truncate long lines
+        y -= 20
+        if y < 100:
+            c.showPage()
+            y = 800
+
+    # Footer with hash placeholder
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(50, 60, f"Document ID: {filename_base}")
+    c.drawString(50, 45, "Verify authenticity at: https://zamindarai.com/verify")
+
+    c.save()
+
+    # Generate hash
+    with open(pdf_path, "rb") as f:
+        file_hash = hashlib.sha256(f.read()).hexdigest()
+
+    # Rename with hash prefix for traceability
+    final_pdf = f"contracts/{file_hash[:16]}_{filename_base}.pdf"
+    os.rename(pdf_path, final_pdf)
+
+    # QR Code
+    verify_url = f"https://zamindarai.com/verify/{file_hash}"
+    qr = qrcode.make(verify_url)
+    qr_path = f"qr_codes/{file_hash}.png"
+    qr.save(qr_path)
+
+    return {
+        "pdf_path": final_pdf,
+        "document_hash": file_hash,
+        "qr_path": qr_path,
+        "verify_url": verify_url
+    }

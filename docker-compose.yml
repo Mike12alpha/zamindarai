@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: zamindarai-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: zamindarai
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: zamindarai
+    volumes:
+      - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zamindarai -d zamindarai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zamindarai-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: zamindarai-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://zamindarai:${DB_PASSWORD}@db:5432/zamindarai
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      HF_TOKEN: ${HF_TOKEN}
+      SERPAPI_KEY: ${SERPAPI_KEY}
+      APP_SECRET_KEY: ${APP_SECRET_KEY}
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/uploads:/app/uploads
+      - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/contracts:/app/contracts
+      - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/qr_codes:/app/qr_codes
+      - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/chroma:/app/chroma_db
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - zamindarai-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: zamindarai-app
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      ZAMINDARAI_API_URL: http://backend:8000
+    networks:
+      - zamindarai-net
+
+networks:
+  zamindarai-net:
+    driver: bridge
