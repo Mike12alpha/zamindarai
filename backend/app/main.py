@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import farmers, diagnoses, prices, contracts, council, impact, whatsapp, soil
 from app.database import Base, engine
 from app.scheduler import scheduler
+import app.models  # noqa: F401 — ensures all models register with Base.metadata
+import traceback
 
 app = FastAPI(
     title="ZamindarAI API",
@@ -13,13 +15,26 @@ app = FastAPI(
 
 @app.on_event("startup")
 def on_startup():
-    Base.metadata.create_all(bind=engine)
-    scheduler.start()
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("[STARTUP] Database tables verified/created")
+    except Exception as e:
+        print(f"[STARTUP ERROR] Failed to create tables: {e}")
+        traceback.print_exc()
+    try:
+        scheduler.start()
+        print("[STARTUP] Scheduler started")
+    except Exception as e:
+        print(f"[STARTUP ERROR] Failed to start scheduler: {e}")
+        traceback.print_exc()
 
 
 @app.on_event("shutdown")
 def on_shutdown():
-    scheduler.shutdown()
+    try:
+        scheduler.shutdown()
+    except Exception:
+        pass
 
 app.add_middleware(
     CORSMiddleware,
@@ -51,6 +66,17 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "ZamindarAI", "version": "1.0.0"}
+
+
+@app.get("/health/db")
+def health_db():
+    from sqlalchemy import text
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
 
 
 @app.get("/agents")
