@@ -15,10 +15,8 @@ RUN pip install --no-cache-dir \
     torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu \
     && pip install --no-cache-dir -r requirements.txt
 
-# Copy application, data, and scripts
+# Copy application (includes data/ and scripts/ subdirs)
 COPY . .
-COPY data/ ./data/
-COPY scripts/ ./scripts/
 
 # Make startup script executable
 RUN chmod +x startup.sh
