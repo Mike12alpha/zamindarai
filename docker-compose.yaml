@@ -15,6 +15,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - zamindarai-net
 
   backend:
     build:
@@ -43,6 +45,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+    networks:
+      - zamindarai-net
 
   frontend:
     build:
@@ -54,3 +58,11 @@ services:
       ZAMINDARAI_API_URL: http://backend:8000
     ports:
       - "18501:8501"
+    links:
+      - backend:backend
+    networks:
+      - zamindarai-net
+
+networks:
+  zamindarai-net:
+    driver: bridge
