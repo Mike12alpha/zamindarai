@@ -10,11 +10,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY requirements.txt .
 
-# Install CPU-only PyTorch first to avoid OOM on small builders,
-# then remaining packages.
-RUN pip install --no-cache-dir \
-    torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu \
-    && pip install --no-cache-dir -r requirements.txt
+# Upgrade pip and install packages in steps for better error visibility
+RUN pip install --upgrade pip setuptools wheel
+
+# Install torch CPU wheel first (large package, prone to OOM on small builders)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining requirements (exclude torch to avoid CUDA version overwrite)
+RUN sed '/^torch/d' requirements.txt > requirements_no_torch.txt && \
+    pip install --no-cache-dir -r requirements_no_torch.txt && \
+    rm requirements_no_torch.txt
 
 # Copy application (includes data/ and scripts/ subdirs)
 COPY . .
