@@ -61,7 +61,15 @@ class BaseAgent(ABC):
 
     def predict(self, prompt: str) -> str:
         if DEMO_MODE:
-            agent_name = self.__class__.__name__.lower().replace("agent", "")
+            # Map class name to MOCK_RESPONSES key
+            name_map = {
+                "cropdoctor": "crop_doctor",
+                "priceoracle": "price_oracle",
+                "soiladvisor": "soil_advisor",
+                "dealguardian": "deal_guardian",
+            }
+            raw_name = self.__class__.__name__.lower().replace("agent", "")
+            agent_name = name_map.get(raw_name, raw_name)
             mock = MOCK_RESPONSES.get(agent_name, "Demo mode: AI service unavailable.")
             try:
                 return mock.format(
