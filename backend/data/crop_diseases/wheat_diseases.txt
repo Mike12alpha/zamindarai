@@ -1,0 +1,26 @@
+Disease: Yellow Rust (Puccinia striiformis)
+Crops: Wheat
+Symptoms: Yellow to orange pustules in stripes on leaves and leaf sheaths. Severe in cool, humid conditions.
+Treatment: Spray Bayleton 10 WP at 500g/100L water per acre. Alternative: Folicur 250 EC at 250ml/acre.
+Organic: Neem oil spray at 3% concentration.
+Prevention: Grow resistant varieties like NARC-2021, PBW-343. Avoid late sowing.
+
+Disease: Loose Smut
+Crops: Wheat
+Symptoms: Black powdery masses replace grains. Spreads through infected seed.
+Treatment: Treat seed with Vitavax 200 at 2.5g/kg seed before sowing.
+Prevention: Use certified seed. Solarize soil if previous crop infected.
+
+Disease: Leaf Blight (Alternaria triticina)
+Crops: Wheat
+Symptoms: Brown to black spots with concentric rings on leaves. Severe under warm, humid conditions.
+Treatment: Spray Mancozeb 75% WP at 2g/L water. Alternative: Copper oxychloride at 3g/L.
+Organic: Bordeaux mixture (1%) spray.
+Prevention: Crop rotation with non-cereal crops. Remove infected crop debris.
+
+Disease: Root Rot (Fusarium spp.)
+Crops: Wheat
+Symptoms: Yellowing and wilting of plants. Brown discoloration of roots and lower stem.
+Treatment: Seed treatment with Carbendazim 50% WP at 2g/kg seed.
+Organic: Trichoderma viride seed treatment at 4g/kg seed.
+Prevention: Well-drained fields. Avoid water logging. Balanced fertilization.

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import farmers, diagnoses, prices, contracts, council, impact, whatsapp
+from app.routers import farmers, diagnoses, prices, contracts, council, impact, whatsapp, soil
 from app.database import Base, engine
 from app.scheduler import scheduler
 
@@ -13,10 +13,7 @@ app = FastAPI(
 
 @app.on_event("startup")
 def on_startup():
-    try:
-        Base.metadata.create_all(bind=engine)
-    except Exception as e:
-        print(f"[STARTUP] DB init warning: {e}")
+    Base.metadata.create_all(bind=engine)
     scheduler.start()
 
 
@@ -38,6 +35,7 @@ app.include_router(contracts.router)
 app.include_router(council.router)
 app.include_router(impact.router)
 app.include_router(whatsapp.router)
+app.include_router(soil.router)
 
 
 @app.get("/")

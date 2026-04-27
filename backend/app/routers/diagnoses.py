@@ -49,10 +49,10 @@ async def create_diagnosis(
             SELECT f.district, d.crop_type, d.vision_analysis, COUNT(*) as cases
             FROM diagnoses d
             JOIN farmers f ON d.farmer_id = f.id
-            WHERE d.created_at > datetime('now', '-7 days')
+            WHERE d.created_at > NOW() - INTERVAL '7 days'
             AND f.district = :district AND d.crop_type = :crop
             GROUP BY f.district, d.crop_type, d.vision_analysis
-            HAVING cases >= 2
+            HAVING COUNT(*) >= 2
         """)
 
         outbreaks = db.execute(outbreak_sql, {

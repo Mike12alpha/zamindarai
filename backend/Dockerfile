@@ -15,8 +15,13 @@ RUN pip install --no-cache-dir \
     torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu \
     && pip install --no-cache-dir -r requirements.txt
 
-# Copy application
+# Copy application, data, and scripts
 COPY . .
+COPY data/ ./data/
+COPY scripts/ ./scripts/
+
+# Make startup script executable
+RUN chmod +x startup.sh
 
 # Create directories for uploads and outputs
 RUN mkdir -p uploads uploads/audio contracts qr_codes chroma_db
@@ -24,5 +29,5 @@ RUN mkdir -p uploads uploads/audio contracts qr_codes chroma_db
 # Expose FastAPI port
 EXPOSE 8000
 
-# Startup: create tables, ingest docs if needed, start server
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Startup: ingest docs, create tables, start server
+CMD ["./startup.sh"]

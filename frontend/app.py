@@ -247,14 +247,42 @@ with tab2:
 with tab3:
     st.header("🌱 ZaminExpert - Mitti Ki Pehchaan")
 
-    question = st.text_area("Apna sawal likhein",
-        "Gandum ke liye kaunsa khad behtar hai?")
-    soil_type = st.selectbox("Mitti", ["Unknown", "Sandy", "Clay", "Loamy"])
-    prev = st.selectbox("Pichli Fasal", ["None", "Wheat", "Rice", "Cotton"])
+    if "farmer" not in st.session_state:
+        st.warning("⚠️ Pehle profile banain!")
+    else:
+        farmer_id = st.session_state["farmer"]["id"]
+        farmer_district = st.session_state["farmer"]["district"]
 
-    if st.button("🌾 Get Advice", type="primary"):
-        st.info("Soil advisor endpoint to be added — for hackathon, embed agent call here or add router")
-        st.write("In production, add backend/app/routers/soil.py following same pattern")
+        soil_crop = st.text_input("Fasal", primary_crop)
+        soil_type = st.selectbox("Mitti", ["Unknown", "Sandy", "Clay", "Loamy"])
+        prev = st.selectbox("Pichli Fasal", ["None", "Wheat", "Rice", "Cotton"])
+        question = st.text_area("Apna sawal likhein",
+            "Gandum ke liye kaunsa khad behtar hai?")
+
+        if st.button("🌾 Get Advice", type="primary"):
+            with st.spinner("ZaminExpert soch raha hai..."):
+                try:
+                    res = requests.post(f"{API_BASE}/soil/advise", data={
+                        "farmer_id": farmer_id,
+                        "location": farmer_district,
+                        "current_crop": soil_crop,
+                        "previous_crop": prev,
+                        "soil_type": soil_type,
+                        "question": question
+                    })
+                    if res.status_code == 200:
+                        st.session_state["last_soil"] = res.json()
+                    else:
+                        st.error(f"Error! Status: {res.status_code}")
+                except Exception as e:
+                    st.error(f"Connection error: {e}")
+
+        if "last_soil" in st.session_state:
+            s = st.session_state["last_soil"]
+            st.markdown('<div class="agent-card">', unsafe_allow_html=True)
+            st.subheader("🌾 ZaminExpert Advice")
+            st.markdown(s["advice"])
+            st.markdown('</div>', unsafe_allow_html=True)
 
 # ----- TAB 4: DEAL GUARDIAN -----
 with tab4:

@@ -24,7 +24,8 @@ chroma_db/
 uploads/
 contracts/
 qr_codes/
-data/
+# Note: backend/data/ contains source documents (crop_diseases, soil_guides, mandi_prices.csv)
+# and IS tracked in git. Only runtime-generated data dirs are ignored above.
 
 # === DOCKER ===
 .docker/

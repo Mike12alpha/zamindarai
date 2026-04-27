@@ -31,7 +31,7 @@ class MandiScraper:
 
             # In production, replace with actual BeautifulSoup parsing
             kb = get_kb()
-            kb.ingest(docs, "mandi_prices_live")
+            kb.ingest(docs, "mandi_prices")
             return len(docs)
         except Exception as e:
             print(f"Scrape failed: {e}")

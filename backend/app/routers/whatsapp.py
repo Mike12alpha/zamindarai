@@ -4,7 +4,7 @@ import requests
 
 router = APIRouter(prefix="/whatsapp", tags=["WhatsApp"])
 
-WHATSAPP_API_BASE = "http://localhost:8000"  # Your own API
+WHATSAPP_API_BASE = "http://backend:8000"  # Docker service name
 
 
 @router.post("/webhook")

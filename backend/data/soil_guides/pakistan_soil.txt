@@ -1,0 +1,72 @@
+Pakistan Soil Fertilizer Guide
+
+WHEAT (Gandum)
+Soil Type: Loamy to clay loam
+NPK Requirements (per acre):
+- Nitrogen (N): 90-110 kg (2 bags Sona Urea)
+- Phosphorus (P): 60-80 kg (1.5 bags Engro DAP)
+- Potassium (K): 40-50 kg (1 bag SOP)
+Application Timing:
+1. At sowing: Full DAP + half SOP as basal
+2. First irrigation (21 days): Half urea
+3. Second irrigation (45 days): Remaining urea + half SOP
+Micronutrients: Zinc sulfate 10 kg/acre if deficiency observed
+
+RICE (Dhan / Chawal)
+Soil Type: Heavy clay with good water retention
+NPK Requirements (per acre):
+- Nitrogen: 100-120 kg
+- Phosphorus: 50-60 kg
+- Potassium: 50-60 kg
+Application Timing:
+1. Basal: Full P + half K
+2. Tillering: Half N
+3. Panicle initiation: Half N + half K
+Special: Apply silica for basmati varieties
+
+COTTON (Kapas)
+Soil Type: Sandy loam to medium loam
+NPK Requirements (per acre):
+- Nitrogen: 120-150 kg
+- Phosphorus: 60-70 kg
+- Potassium: 50-60 kg
+Application Timing:
+1. Basal: Full P + half K
+2. Squaring: One-third N
+3. Flowering: One-third N
+4. Boll formation: One-third N + half K
+Note: Boron deficiency common — apply borax 5 kg/acre
+
+SUGARCANE (Ganna)
+Soil Type: Deep fertile loam
+NPK Requirements (per acre):
+- Nitrogen: 150-175 kg
+- Phosphorus: 75-100 kg
+- Potassium: 100-125 kg
+Application Timing:
+1. Basal: Full P + half K
+2. 30 days: One-third N
+3. 60 days: One-third N
+4. 90 days: One-third N + half K
+
+MAIZE (Makai)
+Soil Type: Well-drained loam
+NPK Requirements (per acre):
+- Nitrogen: 100-120 kg
+- Phosphorus: 60-70 kg
+- Potassium: 50-60 kg
+Application Timing:
+1. Basal: Full P + half K + one-third N
+2. Knee-high stage: One-third N
+3. Tasseling: One-third N + half K
+
+TOMATO (Tamatar)
+Soil Type: Sandy loam with pH 6.0-6.8
+NPK Requirements (per acre):
+- Nitrogen: 80-100 kg
+- Phosphorus: 80-100 kg
+- Potassium: 100-120 kg
+Application Timing:
+1. Basal: Full P + half K
+2. Flowering: Half N + half K
+3. Fruit set: Half N

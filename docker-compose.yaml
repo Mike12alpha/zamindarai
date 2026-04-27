@@ -3,28 +3,23 @@ version: '3.8'
 services:
   db:
     image: postgres:15-alpine
-    container_name: zamindarai-db
-    restart: unless-stopped
     environment:
       POSTGRES_USER: zamindarai
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: zamindarai
     volumes:
       - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/postgres:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U zamindarai -d zamindarai"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - coolify
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: zamindarai-api
-    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
@@ -40,29 +35,23 @@ services:
       - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/contracts:/app/contracts
       - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/qr_codes:/app/qr_codes
       - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/chroma:/app/chroma_db
+    ports:
+      - "18000:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 180s
-    networks:
-      - coolify
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: zamindarai-app
-    restart: unless-stopped
     depends_on:
       backend:
         condition: service_healthy
     environment:
       ZAMINDARAI_API_URL: http://backend:8000
-    networks:
-      - coolify
-
-networks:
-  coolify:
-    external: true
+    ports:
+      - "18501:8501"

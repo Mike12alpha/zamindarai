@@ -6,15 +6,16 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 BACKEND_DIR = os.path.join(PROJECT_ROOT, "backend")
 
-sys.path.append(BACKEND_DIR)
+sys.path.insert(0, BACKEND_DIR)
 
-from core.vector_store import kb
+from core.vector_store import get_kb
 from langchain_community.document_loaders import TextLoader
 from langchain_core.documents import Document
 import csv
 
 
 def ingest_crop_diseases():
+    kb = get_kb()
     docs = []
     data_dir = os.path.join(BACKEND_DIR, "data", "crop_diseases")
     if not os.path.exists(data_dir):
@@ -42,6 +43,7 @@ def ingest_crop_diseases():
 
 
 def ingest_soil_guides():
+    kb = get_kb()
     docs = []
     data_dir = os.path.join(BACKEND_DIR, "data", "soil_guides")
     if not os.path.exists(data_dir):
@@ -69,6 +71,7 @@ def ingest_soil_guides():
 
 
 def ingest_mandi_prices():
+    kb = get_kb()
     csv_path = os.path.join(BACKEND_DIR, "data", "mandi_prices.csv")
     docs = []
 
