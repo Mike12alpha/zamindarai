@@ -21,8 +21,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       DATABASE_URL: postgresql://zamindarai:${DB_PASSWORD}@db:5432/zamindarai
       OPENAI_API_KEY: ${OPENAI_API_KEY}
@@ -38,19 +37,18 @@ services:
     ports:
       - "18000:8000"
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)\" || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 180s
+      retries: 5
+      start_period: 60s
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     environment:
       ZAMINDARAI_API_URL: http://backend:8000
     ports:

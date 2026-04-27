@@ -5,11 +5,12 @@ from app.config import get_settings
 
 settings = get_settings()
 
-if settings.DATABASE_URL.startswith("postgresql"):
-    engine = create_engine(settings.DATABASE_URL)
-else:
-    engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False})
+def make_engine(url: str):
+    if url.startswith("postgresql"):
+        return create_engine(url, pool_pre_ping=True)
+    return create_engine(url, connect_args={"check_same_thread": False})
 
+engine = make_engine(settings.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

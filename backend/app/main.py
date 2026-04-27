@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import farmers, diagnoses, prices, contracts, council, impact, whatsapp, soil
-from app.database import Base, engine
+from app.database import Base, engine, make_engine
+from app.config import get_settings
 from app.scheduler import scheduler
 
 app = FastAPI(
@@ -13,7 +14,22 @@ app = FastAPI(
 
 @app.on_event("startup")
 def on_startup():
-    Base.metadata.create_all(bind=engine)
+    # Attempt PostgreSQL first; fallback to SQLite if unavailable
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("[STARTUP] Database tables created successfully")
+    except Exception as e:
+        print(f"[STARTUP] Primary DB failed: {e}")
+        settings = get_settings()
+        if settings.DATABASE_URL.startswith("postgresql"):
+            fallback_url = "sqlite:///./zamindarai_fallback.db"
+            print(f"[STARTUP] Falling back to SQLite: {fallback_url}")
+            fallback_engine = make_engine(fallback_url)
+            Base.metadata.create_all(bind=fallback_engine)
+            # Rebind session to fallback engine
+            from sqlalchemy.orm import sessionmaker
+            global SessionLocal
+            SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=fallback_engine)
     scheduler.start()
 
 
