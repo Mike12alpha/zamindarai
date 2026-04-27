@@ -10,16 +10,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY requirements.txt .
 
-# Upgrade pip and install packages in steps for better error visibility
+# Upgrade pip first
 RUN pip install --upgrade pip setuptools wheel
 
-# Install torch CPU wheel first (large package, prone to OOM on small builders)
+# Install torch CPU wheel separately (large package, prone to OOM on small builders)
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
-# Install remaining requirements (exclude torch to avoid CUDA version overwrite)
-RUN sed '/^torch/d' requirements.txt > requirements_no_torch.txt && \
-    pip install --no-cache-dir -r requirements_no_torch.txt && \
-    rm requirements_no_torch.txt
+# Install remaining Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application (includes data/ and scripts/ subdirs)
 COPY . .
