@@ -3,7 +3,7 @@ from agents.base import BaseAgent
 
 class DealGuardianAgent(BaseAgent):
     def __init__(self):
-        super().__init__(model="gpt-4", temperature=0.2)
+        super().__init__(model="gemini-1.5-pro", temperature=0.2)
 
     def run(self, farmer_name: str, buyer_name: str, crop: str,
             quantity: str, price_per_kg: float, market_rate: float = None) -> dict:

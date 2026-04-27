@@ -7,7 +7,7 @@ from app.config import get_settings
 from agents.orchestrator import KisanCouncilOrchestrator
 import shutil
 import os
-import openai
+import google.generativeai as genai
 
 router = APIRouter(prefix="/council", tags=["Kisan Council"])
 orchestrator = KisanCouncilOrchestrator()
@@ -74,7 +74,7 @@ async def voice_chat(
     audio: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    """Farmer speaks in Urdu/Punjabi. AI understands."""
+    """Farmer speaks in Urdu/Punjabi. AI understands via Gemini."""
 
     # Save audio
     os.makedirs("uploads/audio", exist_ok=True)
@@ -82,13 +82,21 @@ async def voice_chat(
     with open(audio_path, "wb") as buffer:
         shutil.copyfileobj(audio.file, buffer)
 
-    # Whisper transcribe (OpenAI v2 API)
+    # Gemini audio transcription
     settings = get_settings()
-    client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-    with open(audio_path, "rb") as f:
-        transcript = client.audio.transcriptions.create(model="whisper-1", file=f)
+    genai.configure(api_key=settings.GOOGLE_API_KEY)
+    model = genai.GenerativeModel('gemini-1.5-flash')
 
-    urdu_text = transcript.text
+    mime_type = audio.content_type or "audio/wav"
+    audio_file = genai.upload_file(audio_path, mime_type=mime_type)
+
+    response = model.generate_content([
+        "Transcribe this audio. The farmer speaks in Urdu or Punjabi. "
+        "Return the transcription in Roman Urdu script.",
+        audio_file
+    ])
+
+    urdu_text = response.text
 
     # Now send transcribed text to council
     farmer = db.query(models.Farmer).filter(models.Farmer.id == farmer_id).first()
@@ -104,7 +112,7 @@ async def voice_chat(
     return {
         "transcription": urdu_text,
         "response": response,
-        "detected_language": getattr(transcript, 'language', 'ur'),
+        "detected_language": "ur",
         "plan": plan,
         "agent_results": results
     }

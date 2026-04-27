@@ -26,7 +26,7 @@ services:
       - db
     environment:
       DATABASE_URL: postgresql://zamindarai:${DB_PASSWORD}@db:5432/zamindarai
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
       HF_TOKEN: ${HF_TOKEN}
       SERPAPI_KEY: ${SERPAPI_KEY}
       APP_SECRET_KEY: ${APP_SECRET_KEY}

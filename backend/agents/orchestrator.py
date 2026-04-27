@@ -1,7 +1,7 @@
 import json
 import os
 from typing import Optional, Dict, Any
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from agents import get_agent
 from core.urdu_utils import RomanUrduProcessor
 
@@ -10,19 +10,22 @@ DEMO_MODE = os.getenv("DEMO_MODE", "").lower() in ("1", "true", "yes")
 
 class KisanCouncilOrchestrator:
     def __init__(self):
-        self._model = "gpt-3.5-turbo"
+        self._model = "gemini-1.5-flash"
         self._temperature = 0
         self._llm = None
 
     @property
     def llm(self):
         if self._llm is None:
-            self._llm = ChatOpenAI(model=self._model, temperature=self._temperature)
+            self._llm = ChatGoogleGenerativeAI(
+                model=self._model,
+                temperature=self._temperature,
+                convert_system_message_to_human=True
+            )
         return self._llm
 
     def predict(self, prompt: str) -> str:
         if DEMO_MODE:
-            # Return a realistic demo plan/response
             if "Secretary" in prompt:
                 return json.dumps({
                     "agents_needed": ["CropDoctor", "PriceOracle"],
@@ -38,7 +41,7 @@ class KisanCouncilOrchestrator:
         except Exception as e:
             error_msg = str(e).lower()
             if "quota" in error_msg or "429" in error_msg or "insufficient_quota" in error_msg:
-                return "Maaf kijiye, AI service filhal band hai. Admin se OpenAI billing check karwain."
+                return "Maaf kijiye, AI service filhal band hai. Admin se Google API billing check karwain."
             return f"AI error: {str(e)[:200]}"
 
     def plan(self, user_message: str, has_image: bool = False) -> Dict[str, Any]:
@@ -74,7 +77,6 @@ Return ONLY valid JSON:
         try:
             return json.loads(raw)
         except json.JSONDecodeError:
-            # Fallback plan for demo/error cases
             return {
                 "agents_needed": ["CropDoctor"] if has_image else ["PriceOracle"],
                 "reasoning": "Fallback plan due to parsing error",

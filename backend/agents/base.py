@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 
 DEMO_MODE = os.getenv("DEMO_MODE", "").lower() in ("1", "true", "yes")
@@ -44,7 +44,7 @@ Terms:
 
 
 class BaseAgent(ABC):
-    def __init__(self, model: str = "gpt-3.5-turbo", temperature: float = 0.3):
+    def __init__(self, model: str = "gemini-1.5-flash", temperature: float = 0.3):
         self._model = model
         self._temperature = temperature
         self._llm = None
@@ -52,14 +52,17 @@ class BaseAgent(ABC):
     @property
     def llm(self):
         if self._llm is None:
-            self._llm = ChatOpenAI(model=self._model, temperature=self._temperature)
+            self._llm = ChatGoogleGenerativeAI(
+                model=self._model,
+                temperature=self._temperature,
+                convert_system_message_to_human=True
+            )
         return self._llm
 
     def predict(self, prompt: str) -> str:
         if DEMO_MODE:
             agent_name = self.__class__.__name__.lower().replace("agent", "")
             mock = MOCK_RESPONSES.get(agent_name, "Demo mode: AI service unavailable.")
-            # Simple template substitution for deal_guardian
             try:
                 return mock.format(
                     farmer_name="Kisaan",
@@ -75,7 +78,7 @@ class BaseAgent(ABC):
         except Exception as e:
             error_msg = str(e).lower()
             if "quota" in error_msg or "429" in error_msg or "insufficient_quota" in error_msg:
-                return "Maaf kijiye, AI service filhal band hai. Admin se OpenAI billing check karwain."
+                return "Maaf kijiye, AI service filhal band hai. Admin se Google API billing check karwain."
             return f"AI error: {str(e)[:200]}"
 
     @abstractmethod
