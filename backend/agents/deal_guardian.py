@@ -15,7 +15,7 @@ class DealGuardianAgent(BaseAgent):
             is_fair = False
             warnings.append(f"Rate {price_per_kg} is {((market_rate - price_per_kg)/market_rate)*100:.0f}% below market!")
 
-        prompt = f"""Generate a simple sale agreement in Roman Urdu.
+        prompt = f"""Generate a simple sale agreement (bechnama) in Roman Urdu.
 
 Seller (Kisaan): {farmer_name}
 Buyer (Kharidaar): {buyer_name}
@@ -28,11 +28,11 @@ Include:
 - Date and CNIC blanks
 - Quality grade blank
 - Payment within 3 days clause
-- Transparent deductions section
-- Dispute resolution
+- Transparent deductions section (max 5%)
+- Dispute resolution via local union jirga
 - Signature lines
 
-Keep it simple. A farmer should read it aloud to the buyer."""
+Keep it simple. A farmer should be able to read it aloud to the buyer."""
 
         contract = self.predict(prompt)
 

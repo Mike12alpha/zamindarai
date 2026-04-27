@@ -11,10 +11,13 @@ class SoilAdvisorAgent(BaseAgent):
 
         query = f"{location} {soil_type} {current_crop} {previous_crop} fertilizer Pakistan"
         kb = get_kb()
-        docs = kb.search(query, "soil_guides", k=4)
-        context = self.format_sources(docs)
+        try:
+            docs = kb.search(query, "soil_guides", k=4)
+            context = self.format_sources(docs)
+        except Exception:
+            context = "Knowledge base not yet populated."
 
-        prompt = f"""You are ZaminExpert, Pakistan's soil scientist.
+        prompt = f"""You are ZaminExpert, Pakistan's top soil scientist.
 Location: {location}
 Current crop: {current_crop}
 Previous crop: {previous_crop}

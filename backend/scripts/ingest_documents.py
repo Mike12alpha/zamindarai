@@ -4,7 +4,13 @@ import os
 # Determine project root (parent of scripts/)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-BACKEND_DIR = os.path.join(PROJECT_ROOT, "backend")
+
+# In Docker, code lives directly under /app (no extra "backend" subdir)
+# Locally, repo root has a "backend" folder
+if os.path.exists(os.path.join(PROJECT_ROOT, "backend")):
+    BACKEND_DIR = os.path.join(PROJECT_ROOT, "backend")
+else:
+    BACKEND_DIR = PROJECT_ROOT
 
 sys.path.insert(0, BACKEND_DIR)
 

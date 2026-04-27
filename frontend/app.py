@@ -26,6 +26,16 @@ st.markdown('<div class="sub-title">Kisaan Ka Digital Muhaafiz | Solo Founder Ed
 with st.sidebar:
     st.header("👤 Kisaan Profile")
 
+    # Show backend AI status
+    try:
+        health = requests.get(f"{API_BASE}/health", timeout=3)
+        if health.status_code == 200:
+            st.success("🟢 Backend Online")
+        else:
+            st.warning("🟡 Backend unreachable")
+    except Exception:
+        st.error("🔴 Backend offline")
+
     with st.form("farmer_form"):
         name = st.text_input("Naam", "Ali Ahmed", key="sb_name")
         phone = st.text_input("Phone", "03001234567", key="sb_phone")

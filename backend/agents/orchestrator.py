@@ -1,11 +1,9 @@
 import json
-import os
 from typing import Optional, Dict, Any
 from langchain_google_genai import ChatGoogleGenerativeAI
 from agents import get_agent
 from core.urdu_utils import RomanUrduProcessor
-
-DEMO_MODE = os.getenv("DEMO_MODE", "").lower() in ("1", "true", "yes")
+from app.config import get_settings, check_api_key
 
 
 class KisanCouncilOrchestrator:
@@ -17,15 +15,19 @@ class KisanCouncilOrchestrator:
     @property
     def llm(self):
         if self._llm is None:
+            settings = get_settings()
             self._llm = ChatGoogleGenerativeAI(
                 model=self._model,
                 temperature=self._temperature,
-                convert_system_message_to_human=True
+                convert_system_message_to_human=True,
+                google_api_key=settings.GOOGLE_API_KEY or None,
             )
         return self._llm
 
     def predict(self, prompt: str) -> str:
-        if DEMO_MODE:
+        settings = get_settings()
+
+        if settings.DEMO_MODE:
             if "Secretary" in prompt:
                 return json.dumps({
                     "agents_needed": ["CropDoctor", "PriceOracle"],
@@ -36,13 +38,18 @@ class KisanCouncilOrchestrator:
             if "Chairman" in prompt:
                 return "Bhai jaan, aapki fasal mein zard dhabbay hain. Ye Yellow Rust hai. Bayleton 400g per acre spray karein. Aarti ka rate PKR 25/kg theek hai, mandi rate PKR 24/kg hai. Koi nuksaan nahi."
             return "Demo mode response."
+
+        ok, msg = check_api_key()
+        if not ok:
+            return f"[CONFIG ERROR] {msg}"
+
         try:
             return self.llm.invoke(prompt).content
         except Exception as e:
             error_msg = str(e).lower()
-            if "quota" in error_msg or "429" in error_msg or "insufficient_quota" in error_msg:
+            if any(x in error_msg for x in ["quota", "429", "insufficient_quota", "billing", "exhausted"]):
                 return "Maaf kijiye, AI service filhal band hai. Admin se Google API billing check karwain."
-            return f"AI error: {str(e)[:200]}"
+            return f"[AI ERROR] {str(e)[:200]}"
 
     def plan(self, user_message: str, has_image: bool = False) -> Dict[str, Any]:
         normalized = RomanUrduProcessor.normalize(user_message)
@@ -93,7 +100,9 @@ Return ONLY valid JSON:
             agent = get_agent("crop_doctor")
             crop = entities.get("crop", "unknown")
             res = agent.run(image_bytes, crop) if image_bytes else {
-                "treatment": "No image provided. Please upload a photo."
+                "treatment": "No image provided. Please upload a photo of your crop.",
+                "vision_analysis": "N/A",
+                "sources": []
             }
             results["crop_doctor"] = res
 

@@ -23,7 +23,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://zamindarai:${DB_PASSWORD}@db:5432/zamindarai
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
@@ -31,7 +32,7 @@ services:
       SERPAPI_KEY: ${SERPAPI_KEY}
       APP_SECRET_KEY: ${APP_SECRET_KEY}
       PYTHONUNBUFFERED: "1"
-      DEMO_MODE: ${DEMO_MODE:-true}
+      DEMO_MODE: ${DEMO_MODE:-false}
     volumes:
       - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/uploads:/app/uploads
       - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/contracts:/app/contracts
@@ -53,7 +54,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     environment:
       ZAMINDARAI_API_URL: http://backend:8000
     ports:

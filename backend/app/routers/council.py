@@ -7,7 +7,6 @@ from app.config import get_settings
 from agents.orchestrator import KisanCouncilOrchestrator
 import shutil
 import os
-import google.generativeai as genai
 
 router = APIRouter(prefix="/council", tags=["Kisan Council"])
 orchestrator = KisanCouncilOrchestrator()
@@ -76,27 +75,51 @@ async def voice_chat(
 ):
     """Farmer speaks in Urdu/Punjabi. AI understands via Gemini."""
 
+    settings = get_settings()
+
     # Save audio
     os.makedirs("uploads/audio", exist_ok=True)
     audio_path = f"uploads/audio/{farmer_id}_{audio.filename}"
     with open(audio_path, "wb") as buffer:
         shutil.copyfileobj(audio.file, buffer)
 
-    # Gemini audio transcription
-    settings = get_settings()
-    genai.configure(api_key=settings.GOOGLE_API_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    # --- Gemini audio transcription ---
+    urdu_text = ""
+    transcription_error = None
 
-    mime_type = audio.content_type or "audio/wav"
-    audio_file = genai.upload_file(audio_path, mime_type=mime_type)
+    if settings.GOOGLE_API_KEY:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=settings.GOOGLE_API_KEY)
+            model = genai.GenerativeModel('gemini-1.5-flash')
 
-    response = model.generate_content([
-        "Transcribe this audio. The farmer speaks in Urdu or Punjabi. "
-        "Return the transcription in Roman Urdu script.",
-        audio_file
-    ])
+            mime_type = audio.content_type or "audio/wav"
+            audio_file = genai.upload_file(audio_path, mime_type=mime_type)
 
-    urdu_text = response.text
+            response = model.generate_content([
+                "Transcribe this audio. The farmer speaks in Urdu or Punjabi. "
+                "Return the transcription in Roman Urdu script.",
+                audio_file
+            ])
+            urdu_text = response.text
+        except Exception as e:
+            transcription_error = str(e)
+            # Fallback: use filename as placeholder
+            urdu_text = f"[Transcription failed: {str(e)[:100]}]"
+    else:
+        urdu_text = "[No GOOGLE_API_KEY set — cannot transcribe audio. Please add your API key.]"
+
+    # If transcription failed completely, return error early
+    if not urdu_text or urdu_text.startswith("["):
+        farmer = db.query(models.Farmer).filter(models.Farmer.id == farmer_id).first()
+        return {
+            "transcription": urdu_text,
+            "response": "Maaf kijiye, awaaz samajh nahi ayi. Barah-e-karam dobara bolain ya text likhain.",
+            "detected_language": "ur",
+            "plan": {},
+            "agent_results": {},
+            "error": transcription_error
+        }
 
     # Now send transcribed text to council
     farmer = db.query(models.Farmer).filter(models.Farmer.id == farmer_id).first()
