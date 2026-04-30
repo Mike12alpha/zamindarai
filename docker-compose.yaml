@@ -54,6 +54,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${SERVICE_URL_BACKEND:-http://backend:8000}
+        INTERNAL_API_URL: http://backend:8000
     depends_on:
       backend:
         condition: service_healthy

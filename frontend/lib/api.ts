@@ -1,6 +1,6 @@
 const API_BASE = typeof window !== 'undefined'
-  ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000')
-  : 'http://localhost:8000';
+  ? '/api'  // proxied through Next.js rewrites (avoids CORS)
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000');
 
 function getToken() {
   if (typeof window !== 'undefined') {

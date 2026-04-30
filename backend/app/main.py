@@ -3,11 +3,23 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth, diagnoses, prices, contracts, council, impact, soil
 from app.database import Base, engine
 import traceback
+import os
 
 app = FastAPI(
     title="ZamindarAI API",
     description="AI-powered agricultural protection system for Pakistani farmers",
     version="2.0.0"
+)
+
+# CORS must be added BEFORE routes so preflight OPTIONS are handled correctly
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+    expose_headers=["*"],
+    max_age=86400,
 )
 
 
@@ -19,14 +31,6 @@ def on_startup():
     except Exception as e:
         print(f"[STARTUP ERROR] Failed to create tables: {e}")
         traceback.print_exc()
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 app.include_router(auth.router)
 app.include_router(diagnoses.router)
