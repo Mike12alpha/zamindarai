@@ -1,23 +1,42 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: zamindarai
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-zamindarai}
+      POSTGRES_DB: zamindarai
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zamindarai -d zamindarai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zamindarai-net
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
-      DATABASE_URL: ${DATABASE_URL:-sqlite:///./zamindarai.db}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://zamindarai:${DB_PASSWORD:-zamindarai}@db:5432/zamindarai}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
       HF_TOKEN: ${HF_TOKEN}
       SERPAPI_KEY: ${SERPAPI_KEY}
       APP_SECRET_KEY: ${APP_SECRET_KEY}
       PYTHONUNBUFFERED: "1"
     volumes:
-      - ./backend/data:/app/data
-      - ./backend/uploads:/app/uploads
-      - ./backend/contracts:/app/contracts
-      - ./backend/qr_codes:/app/qr_codes
-      - ./backend/chroma_db:/app/chroma_db
+      - backend_uploads:/app/uploads
+      - backend_contracts:/app/contracts
+      - backend_qrcodes:/app/qr_codes
+      - backend_chroma:/app/chroma_db
     ports:
       - "8000:8000"
     healthcheck:
@@ -37,11 +56,18 @@ services:
       backend:
         condition: service_healthy
     environment:
-      NEXT_PUBLIC_API_URL: http://backend:8000
+      NEXT_PUBLIC_API_URL: ${SERVICE_URL_BACKEND:-http://backend:8000}
     ports:
       - "3000:3000"
     networks:
       - zamindarai-net
+
+volumes:
+  postgres_data:
+  backend_uploads:
+  backend_contracts:
+  backend_qrcodes:
+  backend_chroma:
 
 networks:
   zamindarai-net:
