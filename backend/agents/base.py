@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from typing import Any
-from langchain_google_genai import ChatGoogleGenerativeAI
 from app.config import get_settings, check_api_key
 from core.i18n import get_system_prompt
 
@@ -9,18 +8,6 @@ class BaseAgent(ABC):
     def __init__(self, model: str = "gemini-1.5-flash-latest", temperature: float = 0.3):
         self._model = model
         self._temperature = temperature
-        self._llm = None
-
-    @property
-    def llm(self):
-        if self._llm is None:
-            settings = get_settings()
-            self._llm = ChatGoogleGenerativeAI(
-                model=self._model,
-                temperature=self._temperature,
-                google_api_key=settings.GOOGLE_API_KEY or None,
-            )
-        return self._llm
 
     def predict(self, prompt: str, language: str = "en") -> str:
         settings = get_settings()
@@ -31,7 +18,11 @@ class BaseAgent(ABC):
             return f"[CONFIG ERROR] {msg}\n\nPlease contact admin."
 
         try:
-            return self.llm.invoke(prompt).content
+            import google.generativeai as genai
+            genai.configure(api_key=settings.GOOGLE_API_KEY)
+            model = genai.GenerativeModel(self._model)
+            response = model.generate_content(prompt)
+            return response.text
         except Exception as e:
             print(f"[AI ERROR] Model={self._model}, Lang={language}, Error: {e}")
             error_msg = str(e).lower()
