@@ -6,7 +6,7 @@ from core.i18n import get_system_prompt
 
 
 class BaseAgent(ABC):
-    def __init__(self, model: str = "gemini-1.5-flash", temperature: float = 0.3):
+    def __init__(self, model: str = "gemini-1.5-flash-latest", temperature: float = 0.3):
         self._model = model
         self._temperature = temperature
         self._llm = None

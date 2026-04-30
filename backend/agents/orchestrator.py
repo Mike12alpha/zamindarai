@@ -8,7 +8,7 @@ from core.i18n import get_system_prompt
 
 class KisanCouncilOrchestrator:
     def __init__(self):
-        self._model = "gemini-1.5-flash"
+        self._model = "gemini-1.5-flash-latest"
         self._temperature = 0
         self._llm = None
 
