@@ -38,7 +38,7 @@ services:
       - backend_qrcodes:/app/qr_codes
       - backend_chroma:/app/chroma_db
     ports:
-      - "8000:8000"
+      - "18000:8000"
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)\" || exit 1"]
       interval: 30s
@@ -58,7 +58,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: ${SERVICE_URL_BACKEND:-http://backend:8000}
     ports:
-      - "3000:3000"
+      - "13000:3000"
     networks:
       - zamindarai-net
 
