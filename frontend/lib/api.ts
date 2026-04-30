@@ -1,6 +1,11 @@
-const API_BASE = typeof window !== 'undefined'
-  ? '/api'  // proxied through Next.js rewrites (avoids CORS)
-  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000');
+function getApiBase(): string {
+  // Must be evaluated at RUNTIME (inside function) — not at module level.
+  // Next.js bundles module-level `typeof window` for the server branch.
+  if (typeof window !== 'undefined') {
+    return '/api';  // proxied through Next.js rewrites (same-origin, no CORS)
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+}
 
 function getToken() {
   if (typeof window !== 'undefined') {
@@ -17,7 +22,7 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
     ...(options.headers as Record<string, string> || {}),
   };
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${getApiBase()}${path}`, {
     ...options,
     headers,
   });
@@ -32,7 +37,7 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
 
 export async function apiUpload(path: string, formData: FormData) {
   const token = getToken();
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${getApiBase()}${path}`, {
     method: 'POST',
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     body: formData,

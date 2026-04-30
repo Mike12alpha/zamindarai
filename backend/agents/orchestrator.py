@@ -19,7 +19,6 @@ class KisanCouncilOrchestrator:
             self._llm = ChatGoogleGenerativeAI(
                 model=self._model,
                 temperature=self._temperature,
-                convert_system_message_to_human=True,
                 google_api_key=settings.GOOGLE_API_KEY or None,
             )
         return self._llm

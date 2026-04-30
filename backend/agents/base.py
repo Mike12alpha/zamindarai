@@ -18,7 +18,6 @@ class BaseAgent(ABC):
             self._llm = ChatGoogleGenerativeAI(
                 model=self._model,
                 temperature=self._temperature,
-                convert_system_message_to_human=True,
                 google_api_key=settings.GOOGLE_API_KEY or None,
             )
         return self._llm
@@ -34,6 +33,7 @@ class BaseAgent(ABC):
         try:
             return self.llm.invoke(prompt).content
         except Exception as e:
+            print(f"[AI ERROR] Model={self._model}, Lang={language}, Error: {e}")
             error_msg = str(e).lower()
             if any(x in error_msg for x in ["quota", "429", "insufficient_quota", "billing", "exhausted"]):
                 if language == "ur":
