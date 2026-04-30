@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "title": "زمیندار اے آئی - کسانوں کا ڈیجیٹل محافظ",
+    "description": "پاکستانی کسانوں کے لیے اے آئی پر مبنی زرعی تحفظ کا نظام"
+  },
+  "nav": {
+    "home": "ہوم",
+    "dashboard": "ڈیش بورڈ",
+    "cropDoctor": "فصل ڈاکٹر",
+    "priceOracle": "قیمت کا جانچ",
+    "soilAdvisor": "مٹی کے مشیر",
+    "dealGuardian": "سودے کا محافظ",
+    "council": "کسان کونسل",
+    "login": "لاگ ان",
+    "register": "رجسٹر",
+    "logout": "لاگ آؤٹ",
+    "profile": "پروفائل"
+  },
+  "hero": {
+    "title": "کسان کا ڈیجیٹل محافظ",
+    "subtitle": "پاکستانی کسانوں کے لیے اے آئی پر مبنی زرعی تحفظ",
+    "ctaPrimary": "شروع کریں",
+    "ctaSecondary": "مزید جانیں"
+  },
+  "auth": {
+    "loginTitle": "خوش آمدید",
+    "registerTitle": "اکاؤنٹ بنائیں",
+    "email": "ای میل",
+    "password": "پاس ورڈ",
+    "name": "پورا نام",
+    "phone": "فون نمبر",
+    "district": "ضلع",
+    "farmSize": "زمین کا سائز (ایکڑ)",
+    "primaryCrop": "بنیادی فصل",
+    "loginBtn": "سائن ان",
+    "registerBtn": "اکاؤنٹ بنائیں",
+    "noAccount": "اکاؤنٹ نہیں ہے؟",
+    "hasAccount": "پہلے سے اکاؤنٹ ہے؟",
+    "registerLink": "رجسٹر",
+    "loginLink": "لاگ ان",
+    "successLogin": "خوش آمدید!",
+    "successRegister": "اکاؤنٹ کامیابی سے بن گیا!"
+  },
+  "dashboard": {
+    "welcome": "خوش آمدید",
+    "agents": "آپ کے اے آئی ایجنٹس",
+    "recentActivity": "حالیہ سرگرمی",
+    "cropDoctorDesc": "تصویر سے فصل کی بیماری کی تشخیص",
+    "priceOracleDesc": "منڈی کی درست قیمت جانچیں",
+    "soilAdvisorDesc": "کھاد کی سفارشات حاصل کریں",
+    "dealGuardianDesc": "محفوظ فروخت کا معاہدہ بنائیں"
+  },
+  "cropDoctor": {
+    "title": "ڈاکٹر زرعی - فصل کا ڈاکٹر",
+    "subtitle": "تصویر اپ لوڈ کریں اور فوری تشخیص حاصل کریں",
+    "upload": "فصل کی تصویر اپ لوڈ کریں",
+    "cropType": "فصل کی قسم",
+    "diagnose": "تشخیص کریں",
+    "analyzing": "تصویر کا تجزیہ ہو رہا ہے...",
+    "result": "تشخیص کا نتیجہ",
+    "treatment": "علاج",
+    "noImage": "براہ کرم تصویر اپ لوڈ کریں"
+  },
+  "priceOracle": {
+    "title": "منڈی ماسٹر - قیمت کا جانچ",
+    "subtitle": "خریدار کی پیشکش درست ہے یا نہیں جانچیں",
+    "crop": "فصل",
+    "quantity": "مقدار",
+    "location": "مقام",
+    "offeredPrice": "پیش کردہ قیمت (روپے/کلو)",
+    "check": "قیمت جانچیں",
+    "checking": "منڈی کی قیمتیں چیک ہو رہی ہیں...",
+    "fair": "مناسب سودا",
+    "unfair": "غیر منصفانہ سودا",
+    "marketRate": "منڈی کی قیمت",
+    "analysis": "تجزیہ"
+  },
+  "soilAdvisor": {
+    "title": "زمین ایکسپرٹ - مٹی کے مشیر",
+    "subtitle": "ذاتی کھاد کی سفارشات",
+    "currentCrop": "موجودہ فصل",
+    "previousCrop": "پچھلی فصل",
+    "soilType": "مٹی کی قسم",
+    "question": "آپ کا سوال",
+    "getAdvice": "مشورہ حاصل کریں",
+    "advice": "ماہر مشورہ"
+  },
+  "dealGuardian": {
+    "title": "محافظ - سودے کا محافظ",
+    "subtitle": "حفاظتی فروخت کا معاہدہ بنائیں",
+    "buyerName": "خریدار کا نام",
+    "crop": "فصل",
+    "quantity": "مقدار",
+    "price": "فی کلو قیمت (روپے)",
+    "generate": "معاہدہ بنائیں",
+    "contract": "معاہدہ",
+    "download": "معاہدہ ڈاؤن لوڈ کریں",
+    "isFair": "سودا مناسب ہے",
+    "isUnfair": "انتباہ: سودا منڈی کی قیمت سے کم ہے"
+  },
+  "council": {
+    "title": "کسان کونسل",
+    "subtitle": "کچھ بھی پوچھیں۔ ہمارا اے آئی کونسل درست ماہرین کو بلائے گا۔",
+    "placeholder": "اپنا سوال پوچھیں...",
+    "send": "بھیجیں",
+    "thinking": "کسان کونسل سوچ رہی ہے...",
+    "agentsCalled": "مشورے کے لیے ماہرین",
+    "voice": "آواز کا_input",
+    "uploadAudio": "آڈیو اپ لوڈ کریں"
+  },
+  "common": {
+    "save": "محفوظ کریں",
+    "cancel": "منسوخ",
+    "submit": "جمع کرائیں",
+    "loading": "لوڈ ہو رہا ہے...",
+    "error": "کچھ غلط ہو گیا",
+    "retry": "دوبارہ کوشش کریں",
+    "language": "زبان"
+  }
+}

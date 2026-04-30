@@ -1,35 +1,25 @@
-from fastapi import APIRouter, Depends, Form
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app import models
-from agents import get_agent
+from app.auth import require_user
+from agents.soil_advisor import SoilAdvisorAgent
 
 router = APIRouter(prefix="/soil", tags=["Soil Advisor"])
+agent = SoilAdvisorAgent()
 
 
 @router.post("/advise")
-def soil_advise(
-    farmer_id: int = Form(...),
-    location: str = Form(...),
-    current_crop: str = Form(...),
-    previous_crop: str = Form("unknown"),
-    soil_type: str = Form("unknown"),
-    question: str = Form(""),
+def advise(
+    request: dict,
+    user = Depends(require_user),
     db: Session = Depends(get_db)
 ):
-    """Get soil and fertilizer advice from ZaminExpert."""
-
-    agent = get_agent("soil_advisor")
     result = agent.run(
-        location=location,
-        current_crop=current_crop,
-        previous_crop=previous_crop,
-        soil_type=soil_type,
-        question=question
+        location=request.get("location", user.district or "Lahore"),
+        current_crop=request.get("current_crop", "Wheat"),
+        previous_crop=request.get("previous_crop", "None"),
+        soil_type=request.get("soil_type", "Loamy"),
+        question=request.get("question", ""),
+        language="en"
     )
-
-    return {
-        "advice": result["advice"],
-        "location": location,
-        "crop": current_crop
-    }
+    return result

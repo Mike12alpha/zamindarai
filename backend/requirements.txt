@@ -1,63 +1,24 @@
-# Core web framework
-fastapi
-uvicorn[standard]
-
-# Database
-sqlalchemy
-psycopg2-binary
-alembic
-
-# Data validation & settings
-pydantic
-pydantic-settings
-
-# Auth & security
-python-multipart
-python-jose
-passlib
-bcrypt
-
-# HTTP client
-requests
-httpx
-
-# Image & PDF processing
-pillow
-reportlab
-qrcode
-
-# Scheduling
-apscheduler
-
-# WhatsApp/SMS
-twilio
-
-# LangChain & AI
-langchain
-langchain-google-genai
-langchain-huggingface
-langchain-chroma
-langchain-community
-langchain-text-splitters
-
-# Google Gemini direct API
-google-generativeai
-
-# ML / Embeddings / Vector DB
-sentence-transformers
-chromadb
-transformers
-onnxruntime
-
-# Data science
-pandas
-numpy
-
-# Frontend (also used in backend for shared schemas)
-streamlit
-
-# Testing
-pytest
-
-# Utilities
-python-dotenv
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+sqlalchemy>=2.0.36
+pydantic>=2.9.2
+pydantic-settings>=2.6.1
+python-jose[cryptography]>=3.3.0
+bcrypt>=4.0.0
+python-multipart>=0.0.17
+requests>=2.32.3
+beautifulsoup4>=4.12.3
+lxml>=5.3.0
+email-validator>=2.0.0
+langchain-google-genai>=2.0.1
+langchain-huggingface>=0.1.2
+langchain-chroma>=0.1.4
+langchain-text-splitters>=0.3.2
+langchain-core>=0.3.15
+chromadb>=0.5.20
+sentence-transformers>=3.2.1
+Pillow>=11.0.0
+reportlab>=4.2.5
+qrcode>=8.0
+apscheduler>=3.11.0
+python-dotenv>=1.0.1

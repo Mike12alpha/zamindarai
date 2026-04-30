@@ -1,39 +1,42 @@
-from pydantic import BaseModel
-from typing import Optional, List
-from datetime import datetime
+from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 
-class FarmerCreate(BaseModel):
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
     name: str
-    phone: str
-    district: str
-    farm_size_acres: Optional[float] = None
-    primary_crop: Optional[str] = None
+    phone: Optional[str] = None
+    district: Optional[str] = "Lahore"
+    farm_size_acres: Optional[float] = 0
+    primary_crop: Optional[str] = "Wheat"
 
 
-class FarmerResponse(FarmerCreate):
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class UserResponse(BaseModel):
     id: int
-    created_at: datetime
+    email: str
+    name: str
+    phone: Optional[str]
+    district: Optional[str]
+    farm_size_acres: Optional[float]
+    primary_crop: Optional[str]
 
     class Config:
         from_attributes = True
 
 
-class DiagnosisRequest(BaseModel):
-    farmer_id: int
-    crop_type: str
-    # image will be uploaded as multipart
-
-
-class DiagnosisResponse(BaseModel):
-    id: int
-    vision_analysis: str
-    treatment: str
-    created_at: datetime
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
 
 
 class PriceCheckRequest(BaseModel):
-    farmer_id: int
     crop: str
     quantity: str
     location: str
@@ -47,17 +50,20 @@ class PriceCheckResponse(BaseModel):
 
 
 class ContractRequest(BaseModel):
-    farmer_id: int
     buyer_name: str
     crop: str
     quantity: str
     price_per_kg: float
 
 
-class ContractResponse(BaseModel):
-    contract_text: str
-    is_fair: bool
-    warnings: List[str]
-    contract_hash: Optional[str] = None
-    pdf_path: Optional[str] = None
-    verify_url: Optional[str] = None
+class SoilAdviseRequest(BaseModel):
+    location: str
+    current_crop: str
+    previous_crop: str
+    soil_type: str
+    question: str
+
+
+class ChatRequest(BaseModel):
+    message: str
+    language: str = "en"

@@ -14,6 +14,10 @@ __pycache__/
 .venv/
 venv/
 
+# === NODE ===
+node_modules/
+.next/
+
 # === DATABASES & VECTOR STORES ===
 *.db
 *.sqlite
@@ -24,8 +28,6 @@ chroma_db/
 uploads/
 contracts/
 qr_codes/
-# Note: backend/data/ contains source documents (crop_diseases, soil_guides, mandi_prices.csv)
-# and IS tracked in git. Only runtime-generated data dirs are ignored above.
 
 # === DOCKER ===
 .docker/

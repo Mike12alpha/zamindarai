@@ -1,45 +1,25 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: zamindarai
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: zamindarai
-    volumes:
-      - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/postgres:/var/lib/postgresql/data
-      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U zamindarai -d zamindarai"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - zamindarai-net
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://zamindarai:${DB_PASSWORD}@db:5432/zamindarai
+      DATABASE_URL: ${DATABASE_URL:-sqlite:///./zamindarai.db}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
       HF_TOKEN: ${HF_TOKEN}
       SERPAPI_KEY: ${SERPAPI_KEY}
       APP_SECRET_KEY: ${APP_SECRET_KEY}
       PYTHONUNBUFFERED: "1"
-      DEMO_MODE: ${DEMO_MODE:-false}
     volumes:
-      - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/uploads:/app/uploads
-      - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/contracts:/app/contracts
-      - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/qr_codes:/app/qr_codes
-      - /home/u353357650/domains/glosix.com/public_html/zamindarai/data/chroma:/app/chroma_db
+      - ./backend/data:/app/data
+      - ./backend/uploads:/app/uploads
+      - ./backend/contracts:/app/contracts
+      - ./backend/qr_codes:/app/qr_codes
+      - ./backend/chroma_db:/app/chroma_db
     ports:
-      - "18000:8000"
+      - "8000:8000"
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)\" || exit 1"]
       interval: 30s
@@ -57,11 +37,9 @@ services:
       backend:
         condition: service_healthy
     environment:
-      ZAMINDARAI_API_URL: http://backend:8000
+      NEXT_PUBLIC_API_URL: http://backend:8000
     ports:
-      - "18501:8501"
-    links:
-      - backend:backend
+      - "3000:3000"
     networks:
       - zamindarai-net
 

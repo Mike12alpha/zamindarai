@@ -2,8 +2,8 @@ import json
 from typing import Optional, Dict, Any
 from langchain_google_genai import ChatGoogleGenerativeAI
 from agents import get_agent
-from core.urdu_utils import RomanUrduProcessor
 from app.config import get_settings, check_api_key
+from core.i18n import get_system_prompt
 
 
 class KisanCouncilOrchestrator:
@@ -24,62 +24,29 @@ class KisanCouncilOrchestrator:
             )
         return self._llm
 
-    def predict(self, prompt: str) -> str:
+    def predict(self, prompt: str, language: str = "en") -> str:
         settings = get_settings()
-
-        if settings.DEMO_MODE:
-            if "Secretary" in prompt:
-                return json.dumps({
-                    "agents_needed": ["CropDoctor", "PriceOracle"],
-                    "reasoning": "Demo: Farmer mentioned crop disease and price concern",
-                    "entities": {"crop": "wheat", "offered_price": 25, "quantity": "1000 kg", "district": "Lahore"},
-                    "urgency": "high"
-                })
-            if "Chairman" in prompt:
-                return "Bhai jaan, aapki fasal mein zard dhabbay hain. Ye Yellow Rust hai. Bayleton 400g per acre spray karein. Aarti ka rate PKR 25/kg theek hai, mandi rate PKR 24/kg hai. Koi nuksaan nahi."
-            return "Demo mode response."
-
         ok, msg = check_api_key()
         if not ok:
+            if language == "ur":
+                return f"[ترتیبی خرابی] {msg}"
             return f"[CONFIG ERROR] {msg}"
-
         try:
             return self.llm.invoke(prompt).content
         except Exception as e:
-            error_msg = str(e).lower()
-            if any(x in error_msg for x in ["quota", "429", "insufficient_quota", "billing", "exhausted"]):
-                return "Maaf kijiye, AI service filhal band hai. Admin se Google API billing check karwain."
+            if language == "ur":
+                return f"[AI خرابی] براہ کرم دوبارہ کوشش کریں۔"
             return f"[AI ERROR] {str(e)[:200]}"
 
-    def plan(self, user_message: str, has_image: bool = False) -> Dict[str, Any]:
-        normalized = RomanUrduProcessor.normalize(user_message)
-        prompt = f"""You are the Kisan Council Secretary. Analyze this farmer message and decide which experts to summon.
+    def plan(self, user_message: str, has_image: bool = False, language: str = "en") -> Dict[str, Any]:
+        prompt = get_system_prompt(
+            "orchestrator_plan",
+            language=language,
+            message=user_message,
+            has_image="Yes" if has_image else "No"
+        )
 
-Farmer Message: "{normalized}"
-Image attached: {"Yes" if has_image else "No"}
-
-Available Experts:
-- CropDoctor: crop disease, spots, color change, wilting, pest, fungus
-- PriceOracle: selling price, aarti, mandi rate, buyer offer, qeemat
-- SoilAdvisor: khad, fertilizer, soil type, water, irrigation, mitti
-- DealGuardian: contract, bechnama, agreement, buyer protection, signature
-
-Return ONLY valid JSON:
-{{
-  "agents_needed": ["PriceOracle", "DealGuardian"],
-  "reasoning": "Farmer mentioned selling wheat and wants protection from low aarti price",
-  "entities": {{
-    "crop": "wheat",
-    "offered_price": 25,
-    "quantity": "1000 kg",
-    "buyer_name": "Local Aarti",
-    "district": "Gujranwala",
-    "question": "What fertilizer for next season?"
-  }},
-  "urgency": "high"
-}}"""
-
-        raw = self.predict(prompt)
+        raw = self.predict(prompt, language=language)
         raw = raw.replace("```json", "").replace("```", "").strip()
         try:
             return json.loads(raw)
@@ -91,16 +58,16 @@ Return ONLY valid JSON:
                 "urgency": "medium"
             }
 
-    def execute(self, plan: Dict, farmer_id: int, image_bytes: Optional[bytes] = None,
-                db_farmer=None, user_message: str = "") -> Dict[str, Any]:
+    def execute(self, plan: Dict, user_id: int, image_bytes: Optional[bytes] = None,
+                db_user=None, user_message: str = "", language: str = "en") -> Dict[str, Any]:
         results = {}
         entities = plan.get("entities", {})
 
         if "CropDoctor" in plan["agents_needed"]:
             agent = get_agent("crop_doctor")
             crop = entities.get("crop", "unknown")
-            res = agent.run(image_bytes, crop) if image_bytes else {
-                "treatment": "No image provided. Please upload a photo of your crop.",
+            res = agent.run(image_bytes, crop, language=language) if image_bytes else {
+                "treatment": "No image provided. Please upload a photo of your crop." if language == "en" else "کوئی تصویر نہیں بھیجی گئی۔ براہ کرم اپنی فصل کی تصویر اپ لوڈ کریں۔",
                 "vision_analysis": "N/A",
                 "sources": []
             }
@@ -111,8 +78,9 @@ Return ONLY valid JSON:
             res = agent.run(
                 crop=entities.get("crop", "wheat"),
                 quantity=entities.get("quantity", "1000 kg"),
-                location=entities.get("district", db_farmer.district if db_farmer else "Lahore"),
-                offered_price=entities.get("offered_price", 0)
+                location=entities.get("district", db_user.district if db_user else "Lahore"),
+                offered_price=entities.get("offered_price", 0),
+                language=language
             )
             results["price_oracle"] = res
 
@@ -123,7 +91,8 @@ Return ONLY valid JSON:
                 current_crop=entities.get("crop", "wheat"),
                 previous_crop="unknown",
                 soil_type="unknown",
-                question=entities.get("question", user_message)
+                question=entities.get("question", user_message),
+                language=language
             )
             results["soil_advisor"] = res
 
@@ -134,30 +103,23 @@ Return ONLY valid JSON:
                 market_rate = results["price_oracle"].get("market_rate")
 
             res = agent.run(
-                farmer_name=db_farmer.name if db_farmer else "Kisaan",
+                farmer_name=db_user.name if db_user else "Kisaan",
                 buyer_name=entities.get("buyer_name", "Buyer"),
                 crop=entities.get("crop", "wheat"),
                 quantity=entities.get("quantity", "500 kg"),
                 price_per_kg=entities.get("offered_price", 0),
-                market_rate=market_rate
+                market_rate=market_rate,
+                language=language
             )
             results["deal_guardian"] = res
 
         return results
 
-    def synthesize(self, user_message: str, plan: Dict, results: Dict) -> str:
-        prompt = f"""You are the Kisan Council Chairman. A farmer asked: "{user_message}"
-
-You summoned these experts and got their reports:
-{json.dumps(results, indent=2, ensure_ascii=False)}
-
-Write ONE unified response in Roman Urdu that:
-1. Greets the farmer respectfully
-2. Answers all parts of their question in order of urgency
-3. Uses simple farming language
-4. Gives clear next steps (exact actions, not just advice)
-5. Warns clearly if they are being exploited
-
-Response:"""
-
-        return self.predict(prompt)
+    def synthesize(self, user_message: str, plan: Dict, results: Dict, language: str = "en") -> str:
+        prompt = get_system_prompt(
+            "orchestrator_synthesize",
+            language=language,
+            message=user_message,
+            results=json.dumps(results, indent=2, ensure_ascii=False)
+        )
+        return self.predict(prompt, language=language)

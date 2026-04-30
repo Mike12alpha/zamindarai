@@ -1,4 +1,5 @@
 from agents.base import BaseAgent
+from core.i18n import get_system_prompt
 
 
 class DealGuardianAgent(BaseAgent):
@@ -6,7 +7,7 @@ class DealGuardianAgent(BaseAgent):
         super().__init__(model="gemini-1.5-pro", temperature=0.2)
 
     def run(self, farmer_name: str, buyer_name: str, crop: str,
-            quantity: str, price_per_kg: float, market_rate: float = None) -> dict:
+            quantity: str, price_per_kg: float, market_rate: float = None, language: str = "en") -> dict:
 
         is_fair = True
         warnings = []
@@ -15,26 +16,18 @@ class DealGuardianAgent(BaseAgent):
             is_fair = False
             warnings.append(f"Rate {price_per_kg} is {((market_rate - price_per_kg)/market_rate)*100:.0f}% below market!")
 
-        prompt = f"""Generate a simple sale agreement (bechnama) in Roman Urdu.
+        prompt = get_system_prompt(
+            "deal_guardian",
+            language=language,
+            farmer_name=farmer_name,
+            buyer_name=buyer_name,
+            crop=crop,
+            quantity=quantity,
+            price_per_kg=price_per_kg,
+            market_rate=market_rate if market_rate else "unknown"
+        )
 
-Seller (Kisaan): {farmer_name}
-Buyer (Kharidaar): {buyer_name}
-Crop: {crop}
-Quantity: {quantity}
-Rate: PKR {price_per_kg} per kg
-Market reference rate: PKR {market_rate if market_rate else 'unknown'}
-
-Include:
-- Date and CNIC blanks
-- Quality grade blank
-- Payment within 3 days clause
-- Transparent deductions section (max 5%)
-- Dispute resolution via local union jirga
-- Signature lines
-
-Keep it simple. A farmer should be able to read it aloud to the buyer."""
-
-        contract = self.predict(prompt)
+        contract = self.predict(prompt, language=language)
 
         return {
             "contract_text": contract,

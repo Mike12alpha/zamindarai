@@ -1,56 +1,50 @@
-# ZamindarAI
+# ZamindarAI v2.0
 
 **AI-powered agricultural protection system for Pakistani farmers.**
 
-> ZamindarAI acts as a digital guardian ("Muhaafiz") for smallholder farmers in Pakistan. It combines 4 specialized AI agents into a single "Kisan Council" that farmers can reach via WhatsApp, voice, or a simple web interface — all in Roman Urdu.
+> ZamindarAI acts as a digital guardian ("Muhaafiz") for smallholder farmers in Pakistan. It combines 4 specialized AI agents into a single "Kisan Council" accessible via a modern web interface — in both **English** and **proper Urdu (اردو)**.
 
 ---
 
-## The Problem
+## What's New in v2.0
 
-- **80% of Pakistani farmers are smallholders** who sell crops to middlemen ("aartis") at exploitative prices
-- **No price transparency**: Farmers don't know the true mandi (market) rate
-- **Crop diseases go untreated**: No access to agronomists in remote villages
-- **Verbal contracts are broken**: No written proof of sale agreements
-- **No digital record**: Every season, farmers start from scratch
+- **Next.js 16 Frontend**: Modern, interactive, responsive UI with Framer Motion animations
+- **Full Authentication**: JWT-based signup/login with bcrypt password hashing
+- **Real-time Market Scraping**: Live price data from Pakistan agricultural sources with intelligent fallback
+- **Proper Urdu Support**: Full UI in Urdu script (اردو), not Roman Urdu — with RTL layout
+- **Real Generative AI**: All agents use Gemini 1.5 Flash/Pro for genuine, non-hardcoded responses
+- **Multi-language Agent Responses**: Agents respond in English or Urdu based on user preference
 
-## The Solution: Kisan Council
-
-Instead of making farmers navigate apps, ZamindarAI brings together 4 AI experts into one conversational interface:
-
-| Agent | Role | What it does |
-|-------|------|-------------|
-| **Dr. Zarai** (Crop Doctor) | 🩺 Agronomist | Diagnoses crop diseases from photos, prescribes exact pesticides with dosage per acre |
-| **MandiMaster** (Price Oracle) | 💰 Economist | Checks if the buyer's offer matches real mandi rates, calculates losses |
-| **ZaminExpert** (Soil Advisor) | 🌱 Soil Scientist | Recommends exact fertilizers (Sona Urea, Engro DAP) based on soil and crop |
-| **Muhaafiz** (Deal Guardian) | 📜 Lawyer | Generates tamper-proof sale contracts with QR verification |
+---
 
 ## Architecture
 
 ```
-Farmer (WhatsApp / Voice / Web)
+Farmer (Web Browser)
          ↓
-   Kisan Council Orchestrator
-    (intent routing + synthesis)
+   Next.js 16 Frontend (React, Tailwind, i18n)
+         ↓
+   FastAPI Backend (Python)
          ↓
     ┌────┴────┬────────┬────────┐
     ↓         ↓        ↓        ↓
 CropDoctor  PriceOracle  SoilAdvisor  DealGuardian
     ↓         ↓        ↓        ↓
-  Vision    RAG KB     RAG KB    Contract
-  Model    (mandi)   (soil)     PDF + QR
+Gemini    Scraper+RAG  RAG KB    Contract
+Vision    (real-time)  (soil)    PDF + QR
 ```
 
 ### Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
+| **Frontend** | Next.js 16, TypeScript, Tailwind CSS, Framer Motion |
 | **Backend** | FastAPI, SQLAlchemy, SQLite |
-| **AI/ML** | LangChain, OpenAI GPT, HuggingFace (embeddings + vision) |
+| **Auth** | JWT tokens, bcrypt password hashing |
+| **AI/ML** | Google Gemini 1.5 Flash/Pro (vision + text) |
 | **Vector DB** | ChromaDB (crop diseases, soil guides, mandi prices) |
-| **Scheduler** | APScheduler (live price updates every 6 hours) |
-| **Frontend** | Streamlit (web), Twilio (WhatsApp) |
-| **Voice** | OpenAI Whisper (Urdu/Punjabi transcription) |
+| **Scraper** | BeautifulSoup + requests (real-time Pakistan agri prices) |
+| **i18n** | Custom context-based translations (English / Urdu) |
 | **Documents** | ReportLab (PDF), QRCode (verification) |
 
 ---
@@ -59,73 +53,79 @@ CropDoctor  PriceOracle  SoilAdvisor  DealGuardian
 
 ### Prerequisites
 
+- Node.js 20+
 - Python 3.10+
 - Windows / macOS / Linux
 
-### 1. Clone & Setup
+### 1. Environment Setup
 
 ```bash
-git clone <repo-url>
-cd zamindarai
-```
-
-### 2. Create Virtual Environment
-
-```bash
+# Backend environment
 cd backend
-python -m venv venv
-
-# Windows
-.\venv\Scripts\Activate.ps1
-
-# macOS/Linux
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
-
-```bash
-pip install -r ../requirements.txt
-```
-
-### 4. Configure Environment
-
-```bash
 cp .env.example .env
 # Edit .env and add your API keys:
-# OPENAI_API_KEY=sk-...
-# HF_TOKEN=hf_...
-# SERPAPI_KEY=...
-# APP_SECRET_KEY=your-secret-key
+# GOOGLE_API_KEY=your-gemini-api-key
+# APP_SECRET_KEY=your-jwt-secret
 ```
 
-### 5. Ingest Knowledge Base
-
-```bash
-cd ..
-python scripts/ingest_documents.py
-```
-
-### 6. Run Backend
+### 2. Start Backend
 
 ```bash
 cd backend
-$env:PYTHONPATH="."  # Windows
-# export PYTHONPATH="."  # macOS/Linux
+.\venv\Scripts\Activate.ps1  # Windows
+# source venv/bin/activate   # macOS/Linux
 
+$env:PYTHONPATH="."
 .\venv\Scripts\uvicorn.exe app.main:app --reload --port 8000
 ```
 
 Open [http://localhost:8000/docs](http://localhost:8000/docs) for Swagger UI.
 
-### 7. Run Frontend
+### 3. Start Frontend
 
 ```bash
 cd frontend
-..\backend\venv\Scripts\streamlit.exe run app.py
+npm install
+npm run build
+npm start
 ```
 
-Open [http://localhost:8501](http://localhost:8501) for the Streamlit interface.
+Open [http://localhost:3000](http://localhost:3000) for the web interface.
+
+---
+
+## Features
+
+### 🔐 Authentication
+- Secure signup/login with email and password
+- JWT token-based session management
+- Protected API routes
+
+### 🧠 AI Agents (Real Generative Responses)
+All agents use Google Gemini API for genuine, context-aware responses:
+
+| Agent | Role | What it does |
+|-------|------|-------------|
+| **Dr. Zarai** (Crop Doctor) | 🩺 Agronomist | Diagnoses crop diseases from photos using Gemini Vision |
+| **MandiMaster** (Price Oracle) | 💰 Economist | Checks real-time mandi rates against buyer offers |
+| **ZaminExpert** (Soil Advisor) | 🌱 Soil Scientist | Recommends exact fertilizers based on soil and crop |
+| **Muhaafiz** (Deal Guardian) | 📜 Lawyer | Generates tamper-proof sale contracts with QR verification |
+
+### 🌐 Multi-Language
+- Toggle between **English** and **Urdu (اردو)**
+- Full RTL support for Urdu
+- Agent responses adapt to selected language
+
+### 📊 Real-Time Market Rates
+- Scrapes live prices from Pakistan agricultural sources
+- Intelligent fallback to baseline market data if scraping fails
+- Prices update dynamically for each price check
+
+### 🖼️ Modern UI
+- Responsive dashboard with sidebar navigation
+- Animated transitions with Framer Motion
+- Interactive chat interface for Kisan Council
+- Clean, accessible design with Tailwind CSS
 
 ---
 
@@ -133,19 +133,15 @@ Open [http://localhost:8501](http://localhost:8501) for the Streamlit interface.
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/farmers/` | POST | Register a farmer |
-| `/farmers/{id}` | GET | Get farmer profile |
+| `/auth/register` | POST | Create new account |
+| `/auth/login` | POST | Login and get JWT token |
+| `/auth/me` | GET | Get current user profile |
 | `/diagnoses/` | POST | Upload crop photo for diagnosis |
 | `/prices/check` | POST | Check if offered price is fair |
 | `/contracts/generate` | POST | Generate sale contract |
-| `/contracts/generate/notarized` | POST | Generate contract with PDF + QR |
-| `/contracts/verify/{hash}` | GET | Verify contract authenticity |
-| `/council/chat` | POST | Kisan Council text chat |
-| `/council/voice` | POST | Kisan Council voice input |
-| `/impact/summary` | GET | Collective impact dashboard data |
-| `/whatsapp/webhook` | POST | Twilio WhatsApp webhook |
+| `/soil/advise` | POST | Get soil/fertilizer advice |
+| `/council/chat` | POST | Kisan Council chat with AI agents |
 | `/health` | GET | Health check |
-| `/agents` | GET | List available agents |
 
 ---
 
@@ -155,88 +151,47 @@ Open [http://localhost:8501](http://localhost:8501) for the Streamlit interface.
 zamindarai/
 ├── backend/
 │   ├── app/
-│   │   ├── __init__.py
-│   │   ├── config.py          # Environment config
-│   │   ├── database.py        # SQLAlchemy engine & session
 │   │   ├── main.py            # FastAPI app
-│   │   ├── models.py          # DB models
+│   │   ├── models.py          # SQLAlchemy models
+│   │   ├── auth.py            # JWT & bcrypt auth
 │   │   ├── schemas.py         # Pydantic schemas
+│   │   ├── database.py        # DB engine & session
 │   │   └── routers/
-│   │       ├── __init__.py
-│   │       ├── farmers.py
-│   │       ├── diagnoses.py
-│   │       ├── prices.py
-│   │       ├── contracts.py
-│   │       ├── council.py
-│   │       ├── impact.py
-│   │       └── whatsapp.py
+│   │       ├── auth.py        # Login/signup
+│   │       ├── diagnoses.py   # Crop doctor API
+│   │       ├── prices.py      # Price oracle API
+│   │       ├── contracts.py   # Deal guardian API
+│   │       ├── soil.py        # Soil advisor API
+│   │       ├── council.py     # Kisan Council API
+│   │       └── impact.py      # Dashboard stats
 │   ├── agents/
-│   │   ├── __init__.py        # Agent registry
-│   │   ├── base.py            # BaseAgent abstract class
-│   │   ├── crop_doctor.py
-│   │   ├── price_oracle.py
-│   │   ├── soil_advisor.py
-│   │   ├── deal_guardian.py
-│   │   └── orchestrator.py    # Kisan Council brain
+│   │   ├── base.py            # Base agent with Gemini
+│   │   ├── crop_doctor.py     # Vision + treatment
+│   │   ├── price_oracle.py    # Live scraper + analysis
+│   │   ├── soil_advisor.py    # Soil recommendations
+│   │   └── deal_guardian.py   # Contract generation
 │   ├── core/
-│   │   ├── __init__.py
-│   │   ├── vector_store.py    # ChromaDB KnowledgeBase
-│   │   ├── scraper.py         # Live price scraper
+│   │   ├── scraper.py         # Real-time price scraper
+│   │   ├── vector_store.py    # ChromaDB knowledge base
 │   │   ├── contract_pdf.py    # PDF + QR generator
-│   │   └── urdu_utils.py      # Roman Urdu normalizer
-│   ├── data/
-│   │   ├── crop_diseases/
-│   │   ├── soil_guides/
-│   │   └── mandi_prices.csv
-│   ├── venv/
-│   ├── .env
+│   │   └── i18n.py            # Urdu/English prompts
 │   └── requirements.txt
 ├── frontend/
-│   ├── app.py                 # Main Streamlit app
-│   └── pages/
-│       ├── 1_Admin_Dashboard.py
-│       └── 2_Impact_Dashboard.py
-├── scripts/
-│   └── ingest_documents.py    # KB ingestion pipeline
-├── docker/
-├── .vscode/settings.json
-├── requirements.txt           # Full dependency list
+│   ├── app/[locale]/          # Next.js App Router
+│   │   ├── page.tsx           # Landing page
+│   │   ├── login/page.tsx     # Login
+│   │   ├── register/page.tsx  # Signup
+│   │   └── dashboard/         # Agent dashboards
+│   ├── components/
+│   │   ├── layout/Navbar.tsx
+│   │   ├── layout/Sidebar.tsx
+│   │   └── I18nProvider.tsx   # Translation context
+│   ├── messages/
+│   │   ├── en.json            # English translations
+│   │   └── ur.json            # Urdu translations
+│   └── package.json
 └── README.md
 ```
-
----
-
-## Key Features
-
-### 🧠 Multi-Agent Orchestration
-Farmers don't choose tabs — they speak naturally. The Kisan Council orchestrator analyzes the message, decides which experts to summon, executes them, and synthesizes one unified Roman Urdu response.
-
-### 🗣️ Voice-First Design
-Farmers can record voice messages in Urdu/Punjabi. Whisper transcribes → Kisan Council responds → all without typing.
-
-### 📱 WhatsApp Distribution
-No app download needed. Farmers message a WhatsApp Business number. Twilio forwards to the Kisan Council.
-
-### 🔐 Contract Notarization
-Every sale agreement gets a tamper-proof PDF with SHA-256 hash and QR code. Buyers scan to verify authenticity.
-
-### 🚨 Outbreak Detection
-When 2+ farmers in the same district report the same crop disease within 7 days, the system auto-generates an OutbreakAlert.
-
-### 📊 Collective Impact Dashboard
-Aggregated metrics: total farmers protected, average price fairness by district, active disease outbreaks, estimated money saved.
-
----
-
-## Demo Script for Hackathons
-
-1. **Show the Streamlit frontend** — create a farmer profile in the sidebar
-2. **Crop Doctor** — upload a wheat disease photo, show AI vision result + treatment
-3. **Price Check** — enter an offered price, show fairness analysis
-4. **Deal Guardian** — generate a contract, show PDF + QR code
-5. **Kisan Council** — type: *"Mere gandum pe zard dhabbay hain aur aarti 25 de raha hai"* — watch 3 agents activate simultaneously
-6. **Impact Dashboard** — show district-level fairness + outbreak map
-7. **WhatsApp** — mention: *"Twilio sandbox configured for +92 numbers"*
 
 ---
 
@@ -244,11 +199,11 @@ Aggregated metrics: total farmers protected, average price fairness by district,
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `OPENAI_API_KEY` | Yes | OpenAI API key (GPT, Whisper) |
-| `HF_TOKEN` | No | HuggingFace token (higher rate limits) |
-| `SERPAPI_KEY` | No | SerpAPI for live price scraping |
+| `GOOGLE_API_KEY` | Yes | Google Gemini API key |
 | `APP_SECRET_KEY` | Yes | JWT secret key |
-| `DATABASE_URL` | No | Defaults to `sqlite:///./zamindarai.db` |
+| `DATABASE_URL` | No | Defaults to SQLite |
+| `HF_TOKEN` | No | HuggingFace token |
+| `SERPAPI_KEY` | No | SerpAPI for web search |
 
 ---
 
@@ -258,6 +213,4 @@ MIT
 
 ---
 
-## Credits
-
-Built for **Solo Founder** hackathons. Kisaan ka digital muhaafiz.
+Built for Pakistani farmers. Kisaan ka digital muhaafiz.

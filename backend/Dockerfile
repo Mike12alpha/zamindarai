@@ -2,10 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# System deps: build tools, PostgreSQL client libs + psql CLI, curl
+# System deps: build tools, curl
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential gcc libpq-dev python3-dev pkg-config curl \
-    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .

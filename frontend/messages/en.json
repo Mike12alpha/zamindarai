@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "title": "ZamindarAI - Digital Guardian for Farmers",
+    "description": "AI-powered agricultural protection system for Pakistani farmers"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "cropDoctor": "Crop Doctor",
+    "priceOracle": "Price Oracle",
+    "soilAdvisor": "Soil Advisor",
+    "dealGuardian": "Deal Guardian",
+    "council": "Kisan Council",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "profile": "Profile"
+  },
+  "hero": {
+    "title": "Kisaan Ka Digital Muhaafiz",
+    "subtitle": "AI-powered agricultural protection for Pakistani farmers",
+    "ctaPrimary": "Get Started",
+    "ctaSecondary": "Learn More"
+  },
+  "auth": {
+    "loginTitle": "Welcome Back",
+    "registerTitle": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "phone": "Phone Number",
+    "district": "District",
+    "farmSize": "Farm Size (acres)",
+    "primaryCrop": "Primary Crop",
+    "loginBtn": "Sign In",
+    "registerBtn": "Create Account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "registerLink": "Register",
+    "loginLink": "Login",
+    "successLogin": "Welcome back!",
+    "successRegister": "Account created successfully!"
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "agents": "Your AI Agents",
+    "recentActivity": "Recent Activity",
+    "cropDoctorDesc": "Diagnose crop diseases from photos",
+    "priceOracleDesc": "Check fair market prices",
+    "soilAdvisorDesc": "Get fertilizer recommendations",
+    "dealGuardianDesc": "Generate secure sale contracts"
+  },
+  "cropDoctor": {
+    "title": "Dr. Zarai - Crop Doctor",
+    "subtitle": "Upload a photo and get instant diagnosis",
+    "upload": "Upload Crop Photo",
+    "cropType": "Crop Type",
+    "diagnose": "Diagnose",
+    "analyzing": "Analyzing image...",
+    "result": "Diagnosis Result",
+    "treatment": "Treatment",
+    "noImage": "Please upload an image"
+  },
+  "priceOracle": {
+    "title": "MandiMaster - Price Oracle",
+    "subtitle": "Check if the buyer's offer is fair",
+    "crop": "Crop",
+    "quantity": "Quantity",
+    "location": "Location",
+    "offeredPrice": "Offered Price (PKR/kg)",
+    "check": "Check Price",
+    "checking": "Checking market rates...",
+    "fair": "Fair Deal",
+    "unfair": "Unfair Deal",
+    "marketRate": "Market Rate",
+    "analysis": "Analysis"
+  },
+  "soilAdvisor": {
+    "title": "ZaminExpert - Soil Advisor",
+    "subtitle": "Personalized fertilizer recommendations",
+    "currentCrop": "Current Crop",
+    "previousCrop": "Previous Crop",
+    "soilType": "Soil Type",
+    "question": "Your Question",
+    "getAdvice": "Get Advice",
+    "advice": "Expert Advice"
+  },
+  "dealGuardian": {
+    "title": "Muhaafiz - Deal Guardian",
+    "subtitle": "Generate tamper-proof sale contracts",
+    "buyerName": "Buyer Name",
+    "crop": "Crop",
+    "quantity": "Quantity",
+    "price": "Price per kg (PKR)",
+    "generate": "Generate Contract",
+    "contract": "Contract",
+    "download": "Download Contract",
+    "isFair": "Deal is fair",
+    "isUnfair": "Warning: Deal is below market rate"
+  },
+  "council": {
+    "title": "Kisan Council",
+    "subtitle": "Ask anything. Our AI council will summon the right experts.",
+    "placeholder": "Ask your question...",
+    "send": "Send",
+    "thinking": "Kisan Council is thinking...",
+    "agentsCalled": "Experts Consulted",
+    "voice": "Voice Input",
+    "uploadAudio": "Upload Audio"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "language": "Language"
+  }
+}

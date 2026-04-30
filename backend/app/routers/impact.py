@@ -3,46 +3,35 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.database import get_db
 from app import models
+from app.auth import require_user
 
-router = APIRouter(prefix="/impact", tags=["Impact Analytics"])
+router = APIRouter(prefix="/impact", tags=["Impact Dashboard"])
 
 
 @router.get("/summary")
-def impact_summary(db: Session = Depends(get_db)):
-    total_farmers = db.query(models.Farmer).count()
+def impact_summary(
+    user: models.User = Depends(require_user),
+    db: Session = Depends(get_db)
+):
+    total_users = db.query(models.User).count()
+    total_diagnoses = db.query(models.Diagnosis).count()
+    total_price_checks = db.query(models.PriceCheck).count()
+    total_contracts = db.query(models.Contract).count()
 
-    # Fairness index by district (filter out invalid records to prevent div/0)
-    fairness_query = db.query(
-        models.Farmer.district,
-        func.avg(models.PriceCheck.market_rate / models.PriceCheck.offered_price).label("fairness_index")
-    ).join(models.PriceCheck).filter(
-        models.PriceCheck.offered_price > 0,
-        models.PriceCheck.market_rate != None
-    ).group_by(models.Farmer.district).all()
+    avg_farm_size = db.query(func.avg(models.User.farm_size_acres)).scalar() or 0
 
-    district_fairness = [
-        {"district": d[0], "fairness_index": float(d[1]) if d[1] else 1.0}
-        for d in fairness_query
-    ]
-
-    # Outbreaks
-    outbreaks = db.query(models.OutbreakAlert).all()
-
-    # Money saved estimate
-    money_saved = db.query(
-        func.sum((models.PriceCheck.market_rate - models.PriceCheck.offered_price) * 1000)
-    ).scalar() or 0
+    recent_outbreaks = db.query(models.OutbreakAlert).order_by(
+        models.OutbreakAlert.last_updated.desc()
+    ).limit(5).all()
 
     return {
-        "total_farmers": total_farmers,
-        "fairness_index": sum(d["fairness_index"] for d in district_fairness) / len(district_fairness) if district_fairness else 1.0,
-        "active_outbreaks": len(outbreaks),
-        "money_saved": int(money_saved),
-        "district_fairness": district_fairness,
-        "outbreaks": [
-            {"district": o.district, "crop_type": o.crop_type,
-             "disease": o.disease_signature, "case_count": o.case_count,
-             "lat": 31.5, "lon": 74.3}  # Add real lat/lon later
-            for o in outbreaks
+        "total_users": total_users,
+        "total_diagnoses": total_diagnoses,
+        "total_price_checks": total_price_checks,
+        "total_contracts": total_contracts,
+        "avg_farm_size_acres": round(float(avg_farm_size), 2),
+        "recent_outbreaks": [
+            {"district": o.district, "crop": o.crop_type, "cases": o.case_count}
+            for o in recent_outbreaks
         ]
     }

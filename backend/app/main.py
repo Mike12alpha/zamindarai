@@ -1,15 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import farmers, diagnoses, prices, contracts, council, impact, whatsapp, soil
+from app.routers import auth, diagnoses, prices, contracts, council, impact, soil
 from app.database import Base, engine
-from app.scheduler import scheduler
-import app.models  # noqa: F401 — ensures all models register with Base.metadata
 import traceback
 
 app = FastAPI(
     title="ZamindarAI API",
     description="AI-powered agricultural protection system for Pakistani farmers",
-    version="1.0.0"
+    version="2.0.0"
 )
 
 
@@ -21,20 +19,7 @@ def on_startup():
     except Exception as e:
         print(f"[STARTUP ERROR] Failed to create tables: {e}")
         traceback.print_exc()
-    try:
-        scheduler.start()
-        print("[STARTUP] Scheduler started")
-    except Exception as e:
-        print(f"[STARTUP ERROR] Failed to start scheduler: {e}")
-        traceback.print_exc()
 
-
-@app.on_event("shutdown")
-def on_shutdown():
-    try:
-        scheduler.shutdown()
-    except Exception:
-        pass
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,13 +28,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(farmers.router)
+app.include_router(auth.router)
 app.include_router(diagnoses.router)
 app.include_router(prices.router)
 app.include_router(contracts.router)
 app.include_router(council.router)
 app.include_router(impact.router)
-app.include_router(whatsapp.router)
 app.include_router(soil.router)
 
 
@@ -57,7 +41,7 @@ app.include_router(soil.router)
 def root():
     return {
         "service": "ZamindarAI API",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "docs": "/docs",
         "health": "/health"
     }
@@ -65,7 +49,7 @@ def root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "ZamindarAI", "version": "1.0.0"}
+    return {"status": "healthy", "service": "ZamindarAI", "version": "2.0.0"}
 
 
 @app.get("/health/db")
