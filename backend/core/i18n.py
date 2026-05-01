@@ -233,5 +233,40 @@ def get_system_prompt(agent: str, language: str = "en", **kwargs) -> str:
     return template.format(**kwargs)
 
 
+MESSAGES = {
+    "no_image": {
+        "en": "No image provided. Please upload a photo of your crop.",
+        "ur": "کوئی تصویر نہیں بھیجی گئی۔ براہ کرم اپنی فصل کی تصویر اپ لوڈ کریں۔"
+    },
+    "kb_empty": {
+        "en": "Knowledge base not yet populated.",
+        "ur": "علم کا ذخیرہ ابھی تک تیار نہیں ہے۔"
+    },
+    "price_no_data": {
+        "en": "No local price data available.",
+        "ur": "مقامی قیمتوں کا کوئی ڈیٹا دستیاب نہیں ہے۔"
+    },
+    "vision_prompt": {
+        "en": "You are a crop disease expert. Describe what you see in this plant/crop image. Identify any visible diseases, pests, nutrient deficiencies, or abnormalities. Be concise but specific. Mention the crop type if identifiable.",
+        "ur": "آپ فصل کی بیماریوں کے ماہر ہیں۔ اس پودے/فصل کی تصویر میں جو دیکھتے ہیں اسے بیان کریں۔ کوئی نظر آنے والی بیماری، کیڑے، غذائی کمی، یا غیر معمولی حالت شناخت کریں۔ مختصر لیکن واضح رہیں۔ اگر قابل شناخت ہو تو فصل کی قسم کا ذکر کریں۔"
+    },
+    "deal_warning_below_market": {
+        "en": "Rate {price_per_kg} is {pct_below:.0f}% below market!",
+        "ur": "{price_per_kg} کی قیمت منڈی سے {pct_below:.0f}% کم ہے!"
+    },
+    "fallback_plan_reason": {
+        "en": "Fallback plan due to parsing error",
+        "ur": "پارسنگ کی خرابی کی وجہ سے فال بیک پلان"
+    }
+}
+
+
+def get_message(key: str, language: str = "en", **kwargs) -> str:
+    """Get a simple localized message string."""
+    msg = MESSAGES.get(key, {})
+    template = msg.get(language, msg.get("en", key))
+    return template.format(**kwargs)
+
+
 def get_language_name(code: str) -> str:
     return {"en": "English", "ur": "Urdu"}.get(code, "English")

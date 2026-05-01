@@ -23,7 +23,7 @@ def generate_contract(
         quantity=request.quantity,
         price_per_kg=request.price_per_kg,
         market_rate=None,
-        language="en"
+        language=request.language
     )
 
     pdf_info = generate_notarized_contract(
@@ -31,7 +31,8 @@ def generate_contract(
         farmer_name=user.name,
         buyer_name=request.buyer_name,
         crop=request.crop,
-        price=request.price_per_kg
+        price=request.price_per_kg,
+        language=request.language
     )
 
     contract = models.Contract(

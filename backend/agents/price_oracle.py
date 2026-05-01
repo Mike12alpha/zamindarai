@@ -1,7 +1,7 @@
 from agents.base import BaseAgent
 from core.vector_store import get_kb
 from core.scraper import MandiScraper
-from core.i18n import get_system_prompt
+from core.i18n import get_system_prompt, get_message
 
 
 class PriceOracleAgent(BaseAgent):
@@ -9,14 +9,14 @@ class PriceOracleAgent(BaseAgent):
         super().__init__(temperature=0.2)
         self.scraper = MandiScraper()
 
-    def get_kb_prices(self, crop: str, location: str) -> str:
+    def get_kb_prices(self, crop: str, location: str, language: str = "en") -> str:
         query = f"{crop} {location} mandi price Pakistan 2025"
         kb = get_kb()
         try:
             docs = kb.search(query, "mandi_prices", k=5)
             return self.format_sources(docs)
         except Exception:
-            return "No local price data available."
+            return get_message("price_no_data", language)
 
     def get_live_prices(self, crop: str, location: str) -> str:
         prices = self.scraper.get_live_prices(crop, location)
@@ -31,7 +31,7 @@ class PriceOracleAgent(BaseAgent):
         return "\n".join(lines)
 
     def run(self, crop: str, quantity: str, location: str, offered_price: float, language: str = "en") -> dict:
-        kb_data = self.get_kb_prices(crop, location)
+        kb_data = self.get_kb_prices(crop, location, language)
         live_data = self.get_live_prices(crop, location)
 
         # Calculate avg from live data

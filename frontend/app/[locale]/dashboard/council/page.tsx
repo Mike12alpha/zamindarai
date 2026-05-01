@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { apiUpload } from '@/lib/api';
-import { useT } from '@/components/I18nProvider';
+import { useT, useLocale } from '@/components/I18nProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Send, Loader2, ImageIcon, X, User, Bot } from 'lucide-react';
 
@@ -14,6 +14,7 @@ interface ChatMessage {
 
 export default function CouncilPage() {
   const t = useT();
+  const locale = useLocale();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,7 +36,7 @@ export default function CouncilPage() {
     try {
       const formData = new FormData();
       formData.append('message', userMsg);
-      formData.append('language', 'en');
+      formData.append('language', locale);
       if (file) formData.append('image', file);
 
       const data = await apiUpload('/council/chat', formData);

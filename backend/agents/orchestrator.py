@@ -3,7 +3,7 @@ import os
 from typing import Optional, Dict, Any
 from agents import get_agent
 from app.config import get_settings, check_api_key
-from core.i18n import get_system_prompt
+from core.i18n import get_system_prompt, get_message
 
 
 class KisanCouncilOrchestrator:
@@ -45,7 +45,7 @@ class KisanCouncilOrchestrator:
         except json.JSONDecodeError:
             return {
                 "agents_needed": ["CropDoctor"] if has_image else ["PriceOracle"],
-                "reasoning": "Fallback plan due to parsing error",
+                "reasoning": get_message("fallback_plan_reason", language),
                 "entities": {},
                 "urgency": "medium"
             }

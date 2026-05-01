@@ -3,7 +3,7 @@ import os
 from PIL import Image
 from agents.base import BaseAgent
 from core.vector_store import get_kb
-from core.i18n import get_system_prompt
+from core.i18n import get_system_prompt, get_message
 from app.config import get_settings
 
 
@@ -11,7 +11,7 @@ class CropDoctorAgent(BaseAgent):
     def __init__(self):
         super().__init__()
 
-    def analyze_image(self, image_bytes: bytes) -> str:
+    def analyze_image(self, image_bytes: bytes, language: str = "en") -> str:
         settings = get_settings()
         if not settings.GOOGLE_API_KEY:
             return "[No API key] Gemini Vision unavailable."
@@ -21,9 +21,7 @@ class CropDoctorAgent(BaseAgent):
             model = genai.GenerativeModel(os.getenv('GEMINI_MODEL', 'gemini-flash-latest'))
             image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
             response = model.generate_content([
-                "You are a crop disease expert. Describe what you see in this plant/crop image. "
-                "Identify any visible diseases, pests, nutrient deficiencies, or abnormalities. "
-                "Be concise but specific. Mention the crop type if identifiable.",
+                get_message("vision_prompt", language),
                 image
             ])
             return response.text
@@ -31,7 +29,7 @@ class CropDoctorAgent(BaseAgent):
             return f"[Vision Error] {str(e)[:200]}"
 
     def run(self, image_bytes: bytes, crop_type: str, language: str = "en") -> dict:
-        vision_result = self.analyze_image(image_bytes) if image_bytes else "No image provided."
+        vision_result = self.analyze_image(image_bytes, language) if image_bytes else get_message("no_image", language)
 
         query = f"{crop_type} disease symptoms treatment pesticide Pakistan"
         kb = get_kb()
@@ -40,7 +38,7 @@ class CropDoctorAgent(BaseAgent):
             context = self.format_sources(docs)
         except Exception:
             docs = []
-            context = "Knowledge base not yet populated."
+            context = get_message("kb_empty", language)
 
         prompt = get_system_prompt(
             "crop_doctor",

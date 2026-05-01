@@ -1,5 +1,5 @@
 from agents.base import BaseAgent
-from core.i18n import get_system_prompt
+from core.i18n import get_system_prompt, get_message
 
 
 class DealGuardianAgent(BaseAgent):
@@ -15,7 +15,8 @@ class DealGuardianAgent(BaseAgent):
 
         if market_rate and price_per_kg < market_rate * 0.85:
             is_fair = False
-            warnings.append(f"Rate {price_per_kg} is {((market_rate - price_per_kg)/market_rate)*100:.0f}% below market!")
+            pct_below = ((market_rate - price_per_kg) / market_rate) * 100
+            warnings.append(get_message("deal_warning_below_market", language, price_per_kg=price_per_kg, pct_below=pct_below))
 
         prompt = get_system_prompt(
             "deal_guardian",

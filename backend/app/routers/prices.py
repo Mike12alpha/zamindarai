@@ -20,7 +20,7 @@ def check_price(
         quantity=request.quantity,
         location=request.location,
         offered_price=request.offered_price,
-        language="en"
+        language=request.language
     )
 
     db_check = models.PriceCheck(

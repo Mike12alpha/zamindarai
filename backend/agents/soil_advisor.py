@@ -1,6 +1,6 @@
 from agents.base import BaseAgent
 from core.vector_store import get_kb
-from core.i18n import get_system_prompt
+from core.i18n import get_system_prompt, get_message
 
 
 class SoilAdvisorAgent(BaseAgent):
@@ -16,7 +16,7 @@ class SoilAdvisorAgent(BaseAgent):
             docs = kb.search(query, "soil_guides", k=4)
             context = self.format_sources(docs)
         except Exception:
-            context = "Knowledge base not yet populated."
+            context = get_message("kb_empty", language)
 
         prompt = get_system_prompt(
             "soil_advisor",

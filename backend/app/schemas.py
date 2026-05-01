@@ -41,6 +41,7 @@ class PriceCheckRequest(BaseModel):
     quantity: str
     location: str
     offered_price: float
+    language: str = "en"
 
 
 class PriceCheckResponse(BaseModel):
@@ -54,6 +55,7 @@ class ContractRequest(BaseModel):
     crop: str
     quantity: str
     price_per_kg: float
+    language: str = "en"
 
 
 class SoilAdviseRequest(BaseModel):
@@ -62,6 +64,7 @@ class SoilAdviseRequest(BaseModel):
     previous_crop: str
     soil_type: str
     question: str
+    language: str = "en"
 
 
 class ChatRequest(BaseModel):

@@ -15,6 +15,7 @@ agent = CropDoctorAgent()
 async def diagnose(
     crop_type: str = Form(...),
     image: UploadFile = File(...),
+    language: str = Form("en"),
     user: models.User = Depends(require_user),
     db: Session = Depends(get_db)
 ):
@@ -24,7 +25,7 @@ async def diagnose(
         shutil.copyfileobj(image.file, buffer)
 
     image_bytes = open(image_path, "rb").read()
-    result = agent.run(image_bytes, crop_type, language="en")
+    result = agent.run(image_bytes, crop_type, language=language)
 
     diag = models.Diagnosis(
         user_id=user.id,
