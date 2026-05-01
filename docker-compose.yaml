@@ -35,7 +35,6 @@ services:
       APP_SECRET_KEY: ${APP_SECRET_KEY}
       PYTHONUNBUFFERED: "1"
     volumes:
-      - ./backend:/app
       - backend_uploads:/app/uploads
       - backend_contracts:/app/contracts
       - backend_qrcodes:/app/qr_codes
