@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { apiFetch } from './api';
 
 interface User {
   id: number;
@@ -35,11 +36,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
+
     if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      // Validate token with backend before trusting localStorage
+      apiFetch('/auth/me')
+        .then((data) => {
+          setToken(storedToken);
+          setUser(data);
+        })
+        .catch(() => {
+          // Token invalid or expired — clear stale data
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setToken(null);
+          setUser(null);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const login = (newToken: string, newUser: User) => {
