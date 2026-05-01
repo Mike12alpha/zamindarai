@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Optional, Dict, Any
 from agents import get_agent
 from app.config import get_settings, check_api_key
@@ -7,7 +8,7 @@ from core.i18n import get_system_prompt
 
 class KisanCouncilOrchestrator:
     def __init__(self):
-        self._model = "gemini-1.5-flash-latest"
+        self._model = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
         self._temperature = 0
 
     def predict(self, prompt: str, language: str = "en") -> str:

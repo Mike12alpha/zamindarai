@@ -94,5 +94,15 @@ if echo "$DATABASE_URL" | grep -q "^postgresql"; then
 fi
 
 echo "[STARTUP] Using database: $DATABASE_URL"
+
+# Safety patch: ensure old hardcoded model names are updated inside the container
+# This is a no-op if the source files are already correct
+if command -v sed >/dev/null 2>&1; then
+    sed -i 's/gemini-1\.5-flash-latest/gemini-flash-latest/g' /app/agents/base.py 2>/dev/null || true
+    sed -i 's/gemini-1\.5-flash-latest/gemini-flash-latest/g' /app/agents/orchestrator.py 2>/dev/null || true
+    sed -i 's/gemini-1\.5-flash-latest/gemini-flash-latest/g' /app/agents/crop_doctor.py 2>/dev/null || true
+    sed -i 's/gemini-1\.5-pro-latest/gemini-pro-latest/g' /app/agents/deal_guardian.py 2>/dev/null || true
+fi
+
 echo "[STARTUP] Starting uvicorn..."
 exec uvicorn app.main:app --host 0.0.0.0 --port 8000

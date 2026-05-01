@@ -19,6 +19,8 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application (includes data/ and scripts/ subdirs)
+# Cache-bust to force pickup of updated agent code
+ARG CACHE_BUST=2026-05-01
 COPY . .
 
 # Make startup script executable

@@ -28,11 +28,14 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql://zamindarai:${DB_PASSWORD:-zamindarai}@db:5432/zamindarai}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-flash-latest}
+      GEMINI_PRO_MODEL: ${GEMINI_PRO_MODEL:-gemini-pro-latest}
       HF_TOKEN: ${HF_TOKEN}
       SERPAPI_KEY: ${SERPAPI_KEY}
       APP_SECRET_KEY: ${APP_SECRET_KEY}
       PYTHONUNBUFFERED: "1"
     volumes:
+      - ./backend:/app
       - backend_uploads:/app/uploads
       - backend_contracts:/app/contracts
       - backend_qrcodes:/app/qr_codes

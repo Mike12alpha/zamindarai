@@ -1,4 +1,5 @@
 import io
+import os
 from PIL import Image
 from agents.base import BaseAgent
 from core.vector_store import get_kb
@@ -17,7 +18,7 @@ class CropDoctorAgent(BaseAgent):
         try:
             import google.generativeai as genai
             genai.configure(api_key=settings.GOOGLE_API_KEY)
-            model = genai.GenerativeModel('gemini-1.5-flash-latest')
+            model = genai.GenerativeModel(os.getenv('GEMINI_MODEL', 'gemini-flash-latest'))
             image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
             response = model.generate_content([
                 "You are a crop disease expert. Describe what you see in this plant/crop image. "

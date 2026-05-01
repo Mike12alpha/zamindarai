@@ -4,7 +4,8 @@ from core.i18n import get_system_prompt
 
 class DealGuardianAgent(BaseAgent):
     def __init__(self):
-        super().__init__(model="gemini-1.5-pro-latest", temperature=0.2)
+        import os
+        super().__init__(model=os.getenv("GEMINI_PRO_MODEL", "gemini-pro-latest"), temperature=0.2)
 
     def run(self, farmer_name: str, buyer_name: str, crop: str,
             quantity: str, price_per_kg: float, market_rate: float = None, language: str = "en") -> dict:
