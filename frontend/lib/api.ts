@@ -1,8 +1,17 @@
 function getApiBase(): string {
-  // Must be evaluated at RUNTIME (inside function) — not at module level.
-  // Next.js bundles module-level `typeof window` for the server branch.
-  if (typeof window !== 'undefined') {
-    return '/api';  // proxied through Next.js rewrites (same-origin, no CORS)
+  // Explicit browser detection — window.location only exists in a real browser.
+  // Next.js SSR/SSG will not have window.location, so this safely falls back
+  // to the server URL for any server-side code.
+  try {
+    if (
+      typeof window !== 'undefined' &&
+      typeof window.location !== 'undefined' &&
+      window.location.href
+    ) {
+      return '/api';  // proxied through Next.js rewrites (same-origin, no CORS)
+    }
+  } catch {
+    // Server-side
   }
   return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 }

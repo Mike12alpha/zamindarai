@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { Mic, MicOff, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Loader2, AlertCircle } from 'lucide-react';
 
 interface SpeechRecognitionEvent {
   results: SpeechRecognitionResultList;
@@ -35,9 +35,24 @@ function getSpeechLang(locale: string): string {
   return 'en-US';
 }
 
+function isSecureContext(): boolean {
+  try {
+    return (
+      typeof window !== 'undefined' &&
+      (window.location.protocol === 'https:' ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1')
+    );
+  } catch {
+    return false;
+  }
+}
+
 export default function VoiceInputButton({ onResult, locale, disabled, className = '' }: VoiceInputButtonProps) {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
+  const [needsHttps, setNeedsHttps] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognitionInstance | null>(null);
 
   useEffect(() => {
@@ -47,6 +62,9 @@ export default function VoiceInputButton({ onResult, locale, disabled, className
 
     if (SpeechRecognition) {
       setIsSupported(true);
+      if (!isSecureContext()) {
+        setNeedsHttps(true);
+      }
       const rec = new SpeechRecognition() as SpeechRecognitionInstance;
       rec.lang = getSpeechLang(locale);
       rec.continuous = false;
@@ -55,8 +73,44 @@ export default function VoiceInputButton({ onResult, locale, disabled, className
     }
   }, [locale]);
 
-  const startListening = useCallback(() => {
+  const requestMicPermission = useCallback(async (): Promise<boolean> => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop());
+        setPermissionDenied(false);
+        return true;
+      }
+      return true;
+    } catch (err: any) {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setPermissionDenied(true);
+      }
+      return false;
+    }
+  }, []);
+
+  const startListening = useCallback(async () => {
     if (!recognition) return;
+
+    if (needsHttps) {
+      alert(
+        locale === 'ur'
+          ? 'آواز کا ان پٹ استعمال کرنے کے لیے براہ کرم HTTPS پر سوئچ کریں۔'
+          : 'Please switch to HTTPS to use voice input.'
+      );
+      return;
+    }
+
+    const hasPermission = await requestMicPermission();
+    if (!hasPermission) {
+      alert(
+        locale === 'ur'
+          ? 'مائیکروفون کی اجازت دی گئی نہیں۔ براہ کرم براؤزر کی ترتیبات چیک کریں۔'
+          : 'Microphone permission was denied. Please check your browser settings.'
+      );
+      return;
+    }
 
     recognition.lang = getSpeechLang(locale);
 
@@ -71,6 +125,9 @@ export default function VoiceInputButton({ onResult, locale, disabled, className
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech recognition error:', event.error);
+      if (event.error === 'not-allowed') {
+        setPermissionDenied(true);
+      }
       setIsListening(false);
     };
 
@@ -83,7 +140,7 @@ export default function VoiceInputButton({ onResult, locale, disabled, className
     } catch (e) {
       console.error('Failed to start recognition:', e);
     }
-  }, [recognition, locale, onResult]);
+  }, [recognition, locale, onResult, needsHttps, requestMicPermission]);
 
   const stopListening = useCallback(() => {
     if (recognition) {
@@ -119,10 +176,12 @@ export default function VoiceInputButton({ onResult, locale, disabled, className
       className={`p-2.5 rounded-lg transition-colors relative ${className} ${
         isListening
           ? 'bg-red-50 text-red-600 animate-pulse'
-          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+          : needsHttps || permissionDenied
+            ? 'text-amber-500 hover:bg-amber-50'
+            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
-      {isListening ? <Loader2 className="w-5 h-5 animate-spin" /> : <Mic className="w-5 h-5" />}
+      {isListening ? <Loader2 className="w-5 h-5 animate-spin" /> : needsHttps || permissionDenied ? <AlertCircle className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
       {isListening && (
         <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
       )}

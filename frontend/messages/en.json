@@ -142,7 +142,8 @@
     "emptyState": "Start a conversation with Kisan Council",
     "listening": "Listening...",
     "speakNow": "Speak now",
-    "voiceNotSupported": "Voice input is not supported in this browser"
+    "voiceNotSupported": "Voice input is not supported in this browser",
+    "voiceNeedsHttps": "Please switch to HTTPS to use voice input."
   },
   "common": {
     "save": "Save",

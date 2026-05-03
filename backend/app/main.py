@@ -32,6 +32,18 @@ def on_startup():
         print(f"[STARTUP ERROR] Failed to create tables: {e}")
         traceback.print_exc()
 
+    # Validate Google API key
+    try:
+        from app.config import get_settings, check_api_key
+        settings = get_settings()
+        ok, msg = check_api_key()
+        if ok:
+            print("[STARTUP] GOOGLE_API_KEY is configured")
+        else:
+            print(f"[STARTUP WARNING] {msg}")
+    except Exception as e:
+        print(f"[STARTUP WARNING] Could not validate GOOGLE_API_KEY: {e}")
+
 app.include_router(auth.router)
 app.include_router(diagnoses.router)
 app.include_router(prices.router)

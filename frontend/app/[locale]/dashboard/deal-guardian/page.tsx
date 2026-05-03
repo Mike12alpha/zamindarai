@@ -121,7 +121,7 @@ export default function DealGuardianPage() {
               <pre className="text-xs text-slate-700 whitespace-pre-wrap font-sans leading-relaxed">{result.contract_text}</pre>
             </div>
             {result.pdf_url && (
-              <a href={`http://localhost:8000/${result.pdf_url}`} target="_blank" rel="noopener noreferrer"
+              <a href={`/api/${result.pdf_url}`} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
                 <Download className="w-4 h-4" /> {t('dealGuardian.download')}
               </a>
