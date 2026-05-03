@@ -20,10 +20,10 @@ export default function LanguageSwitcher() {
       <select
         value={locale}
         onChange={(e) => switchLocale(e.target.value)}
-        className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 cursor-pointer text-slate-300 hover:border-white/20 transition-colors"
       >
-        <option value="en">English</option>
-        <option value="ur">اردو</option>
+        <option value="en" className="bg-black text-white">English</option>
+        <option value="ur" className="bg-black text-white">اردو</option>
       </select>
     </div>
   );

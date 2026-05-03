@@ -158,7 +158,7 @@ export default function VoiceInputButton({ onResult, locale, disabled, className
       <button
         disabled
         title={locale === 'ur' ? 'آواز کا ان پٹ دستیاب نہیں' : 'Voice input not supported'}
-        className={`p-2.5 text-slate-300 rounded-lg cursor-not-allowed ${className}`}
+        className={`p-3 text-slate-600 rounded-xl cursor-not-allowed border border-transparent ${className}`}
       >
         <MicOff className="w-5 h-5" />
       </button>
@@ -173,12 +173,12 @@ export default function VoiceInputButton({ onResult, locale, disabled, className
         ? (locale === 'ur' ? 'سن رہے ہیں...' : 'Listening...')
         : (locale === 'ur' ? 'آواز کا ان پٹ' : 'Voice Input')
       }
-      className={`p-2.5 rounded-lg transition-colors relative ${className} ${
+      className={`p-3 rounded-xl transition-all duration-300 relative border ${className} ${
         isListening
-          ? 'bg-red-50 text-red-600 animate-pulse'
+          ? 'bg-red-500/10 border-red-500/20 text-red-400 animate-pulse'
           : needsHttps || permissionDenied
-            ? 'text-amber-500 hover:bg-amber-50'
-            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+            ? 'text-amber-400 border-amber-500/20 hover:bg-amber-500/10'
+            : 'text-slate-500 border-white/10 hover:bg-white/5 hover:text-slate-300'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       {isListening ? <Loader2 className="w-5 h-5 animate-spin" /> : needsHttps || permissionDenied ? <AlertCircle className="w-5 h-5" /> : <Mic className="w-5 h-5" />}

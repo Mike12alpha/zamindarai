@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { apiUpload } from '@/lib/api';
 import { useT, useLocale } from '@/components/I18nProvider';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Send, Loader2, ImageIcon, X, User, Bot } from 'lucide-react';
+import { MessageCircle, Send, Loader2, ImageIcon, X, User, Bot, Sparkles } from 'lucide-react';
 import VoiceInputButton from '@/components/VoiceInputButton';
 
 interface ChatMessage {
@@ -59,17 +59,24 @@ export default function CouncilPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] max-w-4xl mx-auto">
-      <div className="p-4 md:p-6 border-b border-slate-200 bg-white">
-        <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-          <MessageCircle className="w-6 h-6 text-primary-600" /> {t('council.title')}
-        </h1>
-        <p className="text-sm text-slate-500">{t('council.subtitle')}</p>
+      <div className="p-4 md:p-6 border-b border-white/5 glass">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500/20 to-emerald-500/20 border border-primary-500/20 flex items-center justify-center">
+            <MessageCircle className="w-5 h-5 text-primary-400" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white">{t('council.title')}</h1>
+            <p className="text-sm text-slate-500">{t('council.subtitle')}</p>
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-slate-400">
-            <Bot className="w-12 h-12 mb-3" />
+          <div className="flex flex-col items-center justify-center h-full text-slate-600">
+            <div className="w-20 h-20 rounded-3xl bg-white/[0.02] border border-white/5 flex items-center justify-center mb-4">
+              <Bot className="w-10 h-10" />
+            </div>
             <p className="text-sm">{t('council.emptyState')}</p>
           </div>
         )}
@@ -81,17 +88,25 @@ export default function CouncilPage() {
               animate={{ opacity: 1, y: 0 }}
               className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-600'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border ${
+                msg.role === 'user' 
+                  ? 'bg-primary-500/10 border-primary-500/20 text-primary-400' 
+                  : 'bg-white/5 border-white/10 text-slate-400'
+              }`}>
                 {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
-              <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${msg.role === 'user' ? 'bg-primary-600 text-white' : 'bg-white border border-slate-200 text-slate-800'}`}>
+              <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                msg.role === 'user' 
+                  ? 'bg-primary-600 text-white' 
+                  : 'glass border border-white/5 text-slate-200'
+              }`}>
                 <div className="whitespace-pre-wrap">{msg.content}</div>
                 {msg.plan && (
-                  <div className="mt-2 pt-2 border-t border-slate-100">
-                    <p className="text-xs text-slate-500 mb-1">{t('council.agentsCalled')}:</p>
-                    <div className="flex flex-wrap gap-1">
+                  <div className="mt-3 pt-3 border-t border-white/10">
+                    <p className="text-xs text-slate-500 mb-2">{t('council.agentsCalled')}:</p>
+                    <div className="flex flex-wrap gap-1.5">
                       {msg.plan.agents_needed?.map((a: string) => (
-                        <span key={a} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{a}</span>
+                        <span key={a} className="text-xs bg-white/5 text-primary-400 border border-primary-500/20 px-2.5 py-1 rounded-full">{a}</span>
                       ))}
                     </div>
                   </div>
@@ -102,21 +117,25 @@ export default function CouncilPage() {
         </AnimatePresence>
         {loading && (
           <div className="flex items-center gap-2 text-slate-500 text-sm">
-            <Loader2 className="w-4 h-4 animate-spin" /> {t('council.thinking')}
+            <Loader2 className="w-4 h-4 animate-spin text-primary-400" /> 
+            <span className="text-slate-400">{t('council.thinking')}</span>
           </div>
         )}
         <div ref={bottomRef} />
       </div>
 
-      <div className="p-4 bg-white border-t border-slate-200">
+      <div className="p-4 glass border-t border-white/5">
         {file && (
-          <div className="flex items-center gap-2 mb-2 text-sm text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg inline-flex">
-            <ImageIcon className="w-4 h-4" /> {file.name}
-            <button onClick={() => setFile(null)}><X className="w-3 h-3" /></button>
+          <div className="flex items-center gap-2 mb-3 text-sm text-slate-400 bg-white/5 px-4 py-2 rounded-xl inline-flex border border-white/5">
+            <ImageIcon className="w-4 h-4 text-primary-400" /> {file.name}
+            <button onClick={() => setFile(null)} className="hover:text-red-400 transition-colors ml-1">
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
         )}
         <div className="flex gap-2">
-          <button onClick={() => fileRef.current?.click()} className="p-2.5 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">
+          <button onClick={() => fileRef.current?.click()} 
+            className="p-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-300 border border-transparent hover:border-white/10">
             <ImageIcon className="w-5 h-5" />
           </button>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
@@ -132,12 +151,12 @@ export default function CouncilPage() {
             onKeyDown={handleKeyDown}
             placeholder={t('council.placeholder')}
             rows={1}
-            className="flex-1 resize-none px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+            className="flex-1 resize-none px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none input-glow text-sm text-white placeholder-slate-500"
           />
           <button
             onClick={handleSend}
             disabled={loading || (!input.trim() && !file)}
-            className="bg-primary-600 text-white p-2.5 rounded-xl hover:bg-primary-700 transition-colors disabled:opacity-50 shrink-0"
+            className="bg-primary-600 text-white p-3 rounded-xl hover:bg-primary-500 transition-all duration-300 disabled:opacity-50 shrink-0 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
           >
             <Send className="w-5 h-5" />
           </button>

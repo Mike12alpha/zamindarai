@@ -3,6 +3,7 @@ import { routing } from '@/i18n/routing';
 import { AuthProvider } from '@/lib/auth';
 import Navbar from '@/components/layout/Navbar';
 import I18nProvider from '@/components/I18nProvider';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import './globals.css';
 
 export default async function LocaleLayout({
@@ -21,14 +22,16 @@ export default async function LocaleLayout({
   const messages = (await import(`../../messages/${locale}.json`)).default;
 
   return (
-    <html lang={locale} dir={locale === 'ur' ? 'rtl' : 'ltr'}>
-      <body className="bg-slate-50 text-slate-900 antialiased min-h-screen">
-        <I18nProvider messages={messages} locale={locale}>
-          <AuthProvider>
-            <Navbar />
-            {children}
-          </AuthProvider>
-        </I18nProvider>
+    <html lang={locale} dir={locale === 'ur' ? 'rtl' : 'ltr'} suppressHydrationWarning>
+      <body className="antialiased min-h-screen transition-colors duration-400">
+        <ThemeProvider>
+          <I18nProvider messages={messages} locale={locale}>
+            <AuthProvider>
+              <Navbar />
+              {children}
+            </AuthProvider>
+          </I18nProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
