@@ -6,10 +6,53 @@ import { motion } from 'framer-motion';
 
 interface HomeContentProps {
   locale: string;
-  t: (key: string) => string;
 }
 
-export default function HomeContent({ locale, t }: HomeContentProps) {
+export default function HomeContent({ locale }: HomeContentProps) {
+  const t = (key: string) => {
+    const messages: any = {
+      en: {
+        'hero.title': 'Kisaan Ka Digital Muhaafiz',
+        'hero.subtitle': 'AI-powered agricultural protection for Pakistani farmers',
+        'hero.ctaPrimary': 'Get Started',
+        'hero.ctaSecondary': 'Learn More',
+        'dashboard.cropDoctorDesc': 'Diagnose crop diseases from photos',
+        'dashboard.priceOracleDesc': 'Check fair market prices',
+        'dashboard.soilAdvisorDesc': 'Get fertilizer recommendations',
+        'dashboard.dealGuardianDesc': 'Generate secure sale contracts',
+        'nav.login': 'Login',
+        'cropDoctor.title': 'Crop Doctor',
+        'priceOracle.title': 'Price Oracle',
+        'soilAdvisor.title': 'Soil Advisor',
+        'dealGuardian.title': 'Deal Guardian',
+        'hero.badge': 'Next-Gen AI for Farmers',
+        'stats.farmers': 'Farmers Protected',
+        'stats.accuracy': 'AI Accuracy',
+        'stats.districts': 'Districts Covered',
+      },
+      ur: {
+        'hero.title': 'کسان کا ڈیجیٹل محافظ',
+        'hero.subtitle': 'پاکستانی کسانوں کے لیے اے آئی پر مبنی زرعی تحفظ',
+        'hero.ctaPrimary': 'شروع کریں',
+        'hero.ctaSecondary': 'مزید جانیں',
+        'dashboard.cropDoctorDesc': 'تصویر سے فصل کی بیماری کی تشخیص',
+        'dashboard.priceOracleDesc': 'منڈی کی درست قیمت جانچیں',
+        'dashboard.soilAdvisorDesc': 'کھاد کی سفارشات حاصل کریں',
+        'dashboard.dealGuardianDesc': 'محفوظ فروخت کا معاہدہ بنائیں',
+        'nav.login': 'لاگ ان',
+        'cropDoctor.title': 'فصل ڈاکٹر',
+        'priceOracle.title': 'قیمت کا جانچ',
+        'soilAdvisor.title': 'مٹی کے مشیر',
+        'dealGuardian.title': 'سودے کا محافظ',
+        'hero.badge': 'کسانوں کے لیے نئی نسل کا اے آئی',
+        'stats.farmers': 'کسان محفوظ',
+        'stats.accuracy': 'اے آئی درستگی',
+        'stats.districts': 'اضلاع کا احاطہ',
+      }
+    };
+    return messages[locale]?.[key] || messages['en']?.[key] || key;
+  };
+
   const features = [
     { icon: <Brain className="w-7 h-7" />, title: t('cropDoctor.title'), desc: t('dashboard.cropDoctorDesc'), color: 'from-rose-500 to-pink-600', glow: 'group-hover:shadow-rose-500/20' },
     { icon: <TrendingUp className="w-7 h-7" />, title: t('priceOracle.title'), desc: t('dashboard.priceOracleDesc'), color: 'from-amber-500 to-orange-600', glow: 'group-hover:shadow-amber-500/20' },
