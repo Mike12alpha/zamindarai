@@ -4,7 +4,7 @@ WORKDIR /app
 
 # System deps: build tools, curl
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential gcc libpq-dev python3-dev pkg-config curl \
+    build-essential gcc libpq-dev python3-dev pkg-config curl netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application (includes data/ and scripts/ subdirs)
 # Cache-bust to force pickup of updated agent code
-ARG CACHE_BUST=2026-05-01
+ARG CACHE_BUST=2026-05-03
 COPY . .
 
 # Make startup script executable

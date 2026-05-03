@@ -1,13 +1,20 @@
 from fastapi import APIRouter, Form
 from twilio.twiml.messaging_response import MessagingResponse
-from agents.orchestrator import KisanCouncilOrchestrator
 from app import models
 from app.database import SessionLocal
 import re
-import requests
 
 router = APIRouter(prefix="/whatsapp", tags=["WhatsApp"])
-orchestrator = KisanCouncilOrchestrator()
+
+
+_orchestrator = None
+
+def _get_orchestrator():
+    global _orchestrator
+    if _orchestrator is None:
+        from agents.orchestrator import KisanCouncilOrchestrator
+        _orchestrator = KisanCouncilOrchestrator()
+    return _orchestrator
 
 
 def detect_language(text: str) -> str:
@@ -61,8 +68,9 @@ def whatsapp_webhook(
     else:
         try:
             user = get_or_create_user_by_phone(From)
-            plan = orchestrator.plan(Body, has_image=False, language=language)
-            results = orchestrator.execute(
+            orch = _get_orchestrator()
+            plan = orch.plan(Body, has_image=False, language=language)
+            results = orch.execute(
                 plan=plan,
                 user_id=user.id,
                 image_bytes=None,
@@ -70,7 +78,7 @@ def whatsapp_webhook(
                 user_message=Body,
                 language=language
             )
-            msg = orchestrator.synthesize(Body, plan, results, language=language)
+            msg = orch.synthesize(Body, plan, results, language=language)
         except Exception as e:
             print(f"[WHATSAPP ERROR] {e}")
             if language == "ur":
