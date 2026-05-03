@@ -7,6 +7,8 @@ import { useAuth } from '@/lib/auth';
 import { apiFetch } from '@/lib/api';
 import { useT } from '@/components/I18nProvider';
 import { Sprout, Loader2 } from 'lucide-react';
+import ComboInput from '@/components/ComboInput';
+import { DISTRICTS, CROPS } from '@/lib/options';
 
 export default function RegisterPage() {
   const t = useT();
@@ -45,7 +47,7 @@ export default function RegisterPage() {
       login(data.access_token, data.user);
       window.location.href = `/${locale}/dashboard`;
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      setError(err.message || t('auth.registerFailed'));
     } finally {
       setLoading(false);
     }
@@ -89,12 +91,14 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">{t('auth.district')}</label>
-                <select name="district" value={form.district} onChange={handleChange}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                  {['Lahore', 'Faisalabad', 'Multan', 'Gujranwala', 'Sialkot', 'Rawalpindi', 'Bahawalpur'].map(d => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
+                <ComboInput
+                  name="district"
+                  value={form.district}
+                  onChange={handleChange}
+                  options={DISTRICTS}
+                  listId="district-list"
+                  placeholder={t('auth.district')}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">{t('auth.farmSize')}</label>
@@ -104,12 +108,14 @@ export default function RegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">{t('auth.primaryCrop')}</label>
-              <select name="primary_crop" value={form.primary_crop} onChange={handleChange}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                {['Wheat', 'Rice', 'Cotton', 'Sugarcane', 'Maize', 'Vegetables'].map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+              <ComboInput
+                name="primary_crop"
+                value={form.primary_crop}
+                onChange={handleChange}
+                options={CROPS}
+                listId="crop-list"
+                placeholder={t('auth.primaryCrop')}
+              />
             </div>
             <button type="submit" disabled={loading}
               className="w-full bg-primary-600 text-white py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">

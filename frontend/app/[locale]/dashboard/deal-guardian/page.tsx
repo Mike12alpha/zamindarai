@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api';
-import { useT } from '@/components/I18nProvider';
+import { useT, useLocale } from '@/components/I18nProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, Loader2, AlertTriangle, CheckCircle, Download } from 'lucide-react';
+import VoiceInputButton from '@/components/VoiceInputButton';
+import ComboInput from '@/components/ComboInput';
+import { CROPS, QUANTITIES } from '@/lib/options';
 
 export default function DealGuardianPage() {
   const t = useT();
+  const locale = useLocale();
   const [form, setForm] = useState({ buyer_name: '', crop: 'Wheat', quantity: '500 kg', price_per_kg: '' });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -16,12 +20,16 @@ export default function DealGuardianPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const setField = (name: string, value: string) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleGenerate = async () => {
     setLoading(true);
     try {
       const data = await apiFetch('/contracts/generate', {
         method: 'POST',
-        body: JSON.stringify({ ...form, price_per_kg: parseFloat(form.price_per_kg) }),
+        body: JSON.stringify({ ...form, price_per_kg: parseFloat(form.price_per_kg), language: locale }),
       });
       setResult(data);
     } catch (err: any) {
@@ -44,18 +52,36 @@ export default function DealGuardianPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{t('dealGuardian.buyerName')}</label>
-            <input name="buyer_name" value={form.buyer_name} onChange={handleChange}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            <div className="flex gap-2">
+              <input name="buyer_name" value={form.buyer_name} onChange={handleChange}
+                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
+              <VoiceInputButton locale={locale} onResult={(text) => setField('buyer_name', text)} disabled={loading} />
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{t('dealGuardian.crop')}</label>
-            <input name="crop" value={form.crop} onChange={handleChange}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            <div className="flex gap-2">
+              <ComboInput
+                name="crop"
+                value={form.crop}
+                onChange={handleChange}
+                options={CROPS}
+                listId="deal-crops"
+                placeholder={t('dealGuardian.crop')}
+              />
+              <VoiceInputButton locale={locale} onResult={(text) => setField('crop', text)} disabled={loading} />
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{t('dealGuardian.quantity')}</label>
-            <input name="quantity" value={form.quantity} onChange={handleChange}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            <ComboInput
+              name="quantity"
+              value={form.quantity}
+              onChange={handleChange}
+              options={QUANTITIES}
+              listId="deal-quantities"
+              placeholder={t('dealGuardian.quantity')}
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{t('dealGuardian.price')}</label>

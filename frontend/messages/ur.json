@@ -39,7 +39,17 @@
     "registerLink": "رجسٹر",
     "loginLink": "لاگ ان",
     "successLogin": "خوش آمدید!",
-    "successRegister": "اکاؤنٹ کامیابی سے بن گیا!"
+    "successRegister": "اکاؤنٹ کامیابی سے بن گیا!",
+    "loginFailed": "لاگ ان ناکام",
+    "registerFailed": "رجسٹریشن ناکام",
+    "lahore": "لاہور",
+    "faisalabad": "فیصل آباد",
+    "multan": "ملتان",
+    "gujranwala": "گوجرانوالہ",
+    "sialkot": "سیالکوٹ",
+    "rawalpindi": "راولپنڈی",
+    "bahawalpur": "بہاولپور",
+    "vegetables": "سبزیاں"
   },
   "dashboard": {
     "welcome": "خوش آمدید",
@@ -48,7 +58,12 @@
     "cropDoctorDesc": "تصویر سے فصل کی بیماری کی تشخیص",
     "priceOracleDesc": "منڈی کی درست قیمت جانچیں",
     "soilAdvisorDesc": "کھاد کی سفارشات حاصل کریں",
-    "dealGuardianDesc": "محفوظ فروخت کا معاہدہ بنائیں"
+    "dealGuardianDesc": "محفوظ فروخت کا معاہدہ بنائیں",
+    "councilTitle": "کسان کونسل",
+    "councilSubtitle": "کچھ بھی پوچھیں۔ ہمارا اے آئی کونسل درست ماہرین کو بلائے گا۔",
+    "whatsappTitle": "واٹس ایپ پر بات چیت",
+    "whatsappDesc": "واٹس ایپ کے ذریعے فوری جوابات حاصل کریں۔ ہمارا نمبر محفوظ کریں اور اپنا سوال بھیجیں۔",
+    "whatsappNumber": "واٹس ایپ نمبر"
   },
   "cropDoctor": {
     "title": "ڈاکٹر زرعی - فصل کا ڈاکٹر",
@@ -59,7 +74,16 @@
     "analyzing": "تصویر کا تجزیہ ہو رہا ہے...",
     "result": "تشخیص کا نتیجہ",
     "treatment": "علاج",
-    "noImage": "براہ کرم تصویر اپ لوڈ کریں"
+    "noImage": "براہ کرم تصویر اپ لوڈ کریں",
+    "wheat": "گندم",
+    "rice": "چاول",
+    "cotton": "کپاس",
+    "sugarcane": "گنا",
+    "maize": "مکئی",
+    "tomato": "ٹماٹر",
+    "potato": "آلو",
+    "onion": "پیاز",
+    "description": "علامات بیان کریں (اختیاری)"
   },
   "priceOracle": {
     "title": "منڈی ماسٹر - قیمت کا جانچ",
@@ -73,7 +97,8 @@
     "fair": "مناسب سودا",
     "unfair": "غیر منصفانہ سودا",
     "marketRate": "منڈی کی قیمت",
-    "analysis": "تجزیہ"
+    "analysis": "تجزیہ",
+    "currency": "روپے"
   },
   "soilAdvisor": {
     "title": "زمین ایکسپرٹ - مٹی کے مشیر",
@@ -83,7 +108,13 @@
     "soilType": "مٹی کی قسم",
     "question": "آپ کا سوال",
     "getAdvice": "مشورہ حاصل کریں",
-    "advice": "ماہر مشورہ"
+    "advice": "ماہر مشورہ",
+    "none": "کوئی نہیں",
+    "loamy": "گداز",
+    "sandy": "ریتلی",
+    "clay": "چکنی",
+    "silty": "گلیل",
+    "unknown": "نامعلوم"
   },
   "dealGuardian": {
     "title": "محافظ - سودے کا محافظ",
@@ -96,7 +127,8 @@
     "contract": "معاہدہ",
     "download": "معاہدہ ڈاؤن لوڈ کریں",
     "isFair": "سودا مناسب ہے",
-    "isUnfair": "انتباہ: سودا منڈی کی قیمت سے کم ہے"
+    "isUnfair": "انتباہ: سودا منڈی کی قیمت سے کم ہے",
+    "currency": "روپے"
   },
   "council": {
     "title": "کسان کونسل",
@@ -105,8 +137,12 @@
     "send": "بھیجیں",
     "thinking": "کسان کونسل سوچ رہی ہے...",
     "agentsCalled": "مشورے کے لیے ماہرین",
-    "voice": "آواز کا_input",
-    "uploadAudio": "آڈیو اپ لوڈ کریں"
+    "voice": "آواز کا ان پٹ",
+    "uploadAudio": "آڈیو اپ لوڈ کریں",
+    "emptyState": "کسان کونسل سے بات چیت شروع کریں",
+    "listening": "سن رہے ہیں...",
+    "speakNow": "اب بولیں",
+    "voiceNotSupported": "اس براؤزر میں آواز کا ان پٹ دستیاب نہیں ہے"
   },
   "common": {
     "save": "محفوظ کریں",

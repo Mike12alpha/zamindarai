@@ -5,6 +5,7 @@ import { apiUpload } from '@/lib/api';
 import { useT, useLocale } from '@/components/I18nProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Send, Loader2, ImageIcon, X, User, Bot } from 'lucide-react';
+import VoiceInputButton from '@/components/VoiceInputButton';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -69,7 +70,7 @@ export default function CouncilPage() {
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-slate-400">
             <Bot className="w-12 h-12 mb-3" />
-            <p className="text-sm">Start a conversation with Kisan Council</p>
+            <p className="text-sm">{t('council.emptyState')}</p>
           </div>
         )}
         <AnimatePresence>
@@ -119,6 +120,12 @@ export default function CouncilPage() {
             <ImageIcon className="w-5 h-5" />
           </button>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+          <VoiceInputButton
+            locale={locale}
+            onResult={(text) => setInput((prev) => prev + (prev ? ' ' : '') + text)}
+            disabled={loading}
+            className="shrink-0"
+          />
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -130,7 +137,7 @@ export default function CouncilPage() {
           <button
             onClick={handleSend}
             disabled={loading || (!input.trim() && !file)}
-            className="bg-primary-600 text-white p-2.5 rounded-xl hover:bg-primary-700 transition-colors disabled:opacity-50"
+            className="bg-primary-600 text-white p-2.5 rounded-xl hover:bg-primary-700 transition-colors disabled:opacity-50 shrink-0"
           >
             <Send className="w-5 h-5" />
           </button>

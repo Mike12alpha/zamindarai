@@ -30,7 +30,7 @@ export default function LoginPage() {
       login(data.access_token, data.user);
       window.location.href = `/${locale}/dashboard`;
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      setError(err.message || t('auth.loginFailed'));
     } finally {
       setLoading(false);
     }

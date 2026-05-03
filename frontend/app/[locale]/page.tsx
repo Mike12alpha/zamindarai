@@ -16,6 +16,10 @@ export default async function HomePage({ params }: { params: { locale: string } 
         'dashboard.soilAdvisorDesc': 'Get fertilizer recommendations',
         'dashboard.dealGuardianDesc': 'Generate secure sale contracts',
         'nav.login': 'Login',
+        'cropDoctor.title': 'Crop Doctor',
+        'priceOracle.title': 'Price Oracle',
+        'soilAdvisor.title': 'Soil Advisor',
+        'dealGuardian.title': 'Deal Guardian',
       },
       ur: {
         'hero.title': 'کسان کا ڈیجیٹل محافظ',
@@ -27,16 +31,20 @@ export default async function HomePage({ params }: { params: { locale: string } 
         'dashboard.soilAdvisorDesc': 'کھاد کی سفارشات حاصل کریں',
         'dashboard.dealGuardianDesc': 'محفوظ فروخت کا معاہدہ بنائیں',
         'nav.login': 'لاگ ان',
+        'cropDoctor.title': 'فصل ڈاکٹر',
+        'priceOracle.title': 'قیمت کا جانچ',
+        'soilAdvisor.title': 'مٹی کے مشیر',
+        'dealGuardian.title': 'سودے کا محافظ',
       }
     };
     return messages[locale]?.[key] || messages['en']?.[key] || key;
   };
 
   const features = [
-    { icon: <Brain className="w-8 h-8 text-primary-600" />, title: 'Crop Doctor', desc: t('dashboard.cropDoctorDesc') },
-    { icon: <TrendingUp className="w-8 h-8 text-primary-600" />, title: 'Price Oracle', desc: t('dashboard.priceOracleDesc') },
-    { icon: <Leaf className="w-8 h-8 text-primary-600" />, title: 'Soil Advisor', desc: t('dashboard.soilAdvisorDesc') },
-    { icon: <ShieldCheck className="w-8 h-8 text-primary-600" />, title: 'Deal Guardian', desc: t('dashboard.dealGuardianDesc') },
+    { icon: <Brain className="w-8 h-8 text-primary-600" />, title: t('cropDoctor.title'), desc: t('dashboard.cropDoctorDesc') },
+    { icon: <TrendingUp className="w-8 h-8 text-primary-600" />, title: t('priceOracle.title'), desc: t('dashboard.priceOracleDesc') },
+    { icon: <Leaf className="w-8 h-8 text-primary-600" />, title: t('soilAdvisor.title'), desc: t('dashboard.soilAdvisorDesc') },
+    { icon: <ShieldCheck className="w-8 h-8 text-primary-600" />, title: t('dealGuardian.title'), desc: t('dashboard.dealGuardianDesc') },
   ];
 
   return (

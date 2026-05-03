@@ -39,7 +39,17 @@
     "registerLink": "Register",
     "loginLink": "Login",
     "successLogin": "Welcome back!",
-    "successRegister": "Account created successfully!"
+    "successRegister": "Account created successfully!",
+    "loginFailed": "Login failed",
+    "registerFailed": "Registration failed",
+    "lahore": "Lahore",
+    "faisalabad": "Faisalabad",
+    "multan": "Multan",
+    "gujranwala": "Gujranwala",
+    "sialkot": "Sialkot",
+    "rawalpindi": "Rawalpindi",
+    "bahawalpur": "Bahawalpur",
+    "vegetables": "Vegetables"
   },
   "dashboard": {
     "welcome": "Welcome",
@@ -48,7 +58,12 @@
     "cropDoctorDesc": "Diagnose crop diseases from photos",
     "priceOracleDesc": "Check fair market prices",
     "soilAdvisorDesc": "Get fertilizer recommendations",
-    "dealGuardianDesc": "Generate secure sale contracts"
+    "dealGuardianDesc": "Generate secure sale contracts",
+    "councilTitle": "Kisan Council",
+    "councilSubtitle": "Ask anything. Our AI council will summon the right experts.",
+    "whatsappTitle": "Chat on WhatsApp",
+    "whatsappDesc": "Get instant answers via WhatsApp. Save our number and send your question.",
+    "whatsappNumber": "WhatsApp Number"
   },
   "cropDoctor": {
     "title": "Dr. Zarai - Crop Doctor",
@@ -59,7 +74,16 @@
     "analyzing": "Analyzing image...",
     "result": "Diagnosis Result",
     "treatment": "Treatment",
-    "noImage": "Please upload an image"
+    "noImage": "Please upload an image",
+    "wheat": "Wheat",
+    "rice": "Rice",
+    "cotton": "Cotton",
+    "sugarcane": "Sugarcane",
+    "maize": "Maize",
+    "tomato": "Tomato",
+    "potato": "Potato",
+    "onion": "Onion",
+    "description": "Describe symptoms (optional)"
   },
   "priceOracle": {
     "title": "MandiMaster - Price Oracle",
@@ -73,7 +97,8 @@
     "fair": "Fair Deal",
     "unfair": "Unfair Deal",
     "marketRate": "Market Rate",
-    "analysis": "Analysis"
+    "analysis": "Analysis",
+    "currency": "PKR"
   },
   "soilAdvisor": {
     "title": "ZaminExpert - Soil Advisor",
@@ -83,7 +108,13 @@
     "soilType": "Soil Type",
     "question": "Your Question",
     "getAdvice": "Get Advice",
-    "advice": "Expert Advice"
+    "advice": "Expert Advice",
+    "none": "None",
+    "loamy": "Loamy",
+    "sandy": "Sandy",
+    "clay": "Clay",
+    "silty": "Silty",
+    "unknown": "Unknown"
   },
   "dealGuardian": {
     "title": "Muhaafiz - Deal Guardian",
@@ -96,7 +127,8 @@
     "contract": "Contract",
     "download": "Download Contract",
     "isFair": "Deal is fair",
-    "isUnfair": "Warning: Deal is below market rate"
+    "isUnfair": "Warning: Deal is below market rate",
+    "currency": "PKR"
   },
   "council": {
     "title": "Kisan Council",
@@ -106,7 +138,11 @@
     "thinking": "Kisan Council is thinking...",
     "agentsCalled": "Experts Consulted",
     "voice": "Voice Input",
-    "uploadAudio": "Upload Audio"
+    "uploadAudio": "Upload Audio",
+    "emptyState": "Start a conversation with Kisan Council",
+    "listening": "Listening...",
+    "speakNow": "Speak now",
+    "voiceNotSupported": "Voice input is not supported in this browser"
   },
   "common": {
     "save": "Save",

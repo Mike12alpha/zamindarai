@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api';
-import { useT } from '@/components/I18nProvider';
+import { useT, useLocale } from '@/components/I18nProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
+import VoiceInputButton from '@/components/VoiceInputButton';
+import ComboInput from '@/components/ComboInput';
+import { CROPS, DISTRICTS, QUANTITIES } from '@/lib/options';
 
 export default function PriceOraclePage() {
   const t = useT();
+  const locale = useLocale();
   const [form, setForm] = useState({ crop: 'Wheat', quantity: '1000 kg', location: 'Lahore', offered_price: '' });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -21,7 +25,7 @@ export default function PriceOraclePage() {
     try {
       const data = await apiFetch('/prices/check', {
         method: 'POST',
-        body: JSON.stringify({ ...form, offered_price: parseFloat(form.offered_price) }),
+        body: JSON.stringify({ ...form, offered_price: parseFloat(form.offered_price), language: locale }),
       });
       setResult(data);
     } catch (err: any) {
@@ -29,6 +33,10 @@ export default function PriceOraclePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const setField = (name: string, value: string) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -44,18 +52,42 @@ export default function PriceOraclePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{t('priceOracle.crop')}</label>
-            <input name="crop" value={form.crop} onChange={handleChange}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            <div className="flex gap-2">
+              <ComboInput
+                name="crop"
+                value={form.crop}
+                onChange={handleChange}
+                options={CROPS}
+                listId="price-crops"
+                placeholder={t('priceOracle.crop')}
+              />
+              <VoiceInputButton locale={locale} onResult={(text) => setField('crop', text)} disabled={loading} />
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{t('priceOracle.quantity')}</label>
-            <input name="quantity" value={form.quantity} onChange={handleChange}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            <ComboInput
+              name="quantity"
+              value={form.quantity}
+              onChange={handleChange}
+              options={QUANTITIES}
+              listId="price-quantities"
+              placeholder={t('priceOracle.quantity')}
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{t('priceOracle.location')}</label>
-            <input name="location" value={form.location} onChange={handleChange}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            <div className="flex gap-2">
+              <ComboInput
+                name="location"
+                value={form.location}
+                onChange={handleChange}
+                options={DISTRICTS}
+                listId="price-districts"
+                placeholder={t('priceOracle.location')}
+              />
+              <VoiceInputButton locale={locale} onResult={(text) => setField('location', text)} disabled={loading} />
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">{t('priceOracle.offeredPrice')}</label>
@@ -93,7 +125,7 @@ export default function PriceOraclePage() {
             {result.market_rate && (
               <div className="inline-block bg-white rounded-lg px-4 py-2 border border-slate-200">
                 <span className="text-xs text-slate-500">{t('priceOracle.marketRate')}</span>
-                <p className="text-lg font-bold text-slate-900">PKR {result.market_rate}/kg</p>
+                <p className="text-lg font-bold text-slate-900">{t('priceOracle.currency')} {result.market_rate}/kg</p>
               </div>
             )}
           </motion.div>

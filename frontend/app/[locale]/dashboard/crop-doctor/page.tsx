@@ -2,12 +2,16 @@
 
 import { useState, useRef } from 'react';
 import { apiUpload } from '@/lib/api';
-import { useT } from '@/components/I18nProvider';
+import { useT, useLocale } from '@/components/I18nProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Stethoscope, Loader2, ImageIcon, X } from 'lucide-react';
+import VoiceInputButton from '@/components/VoiceInputButton';
+import ComboInput from '@/components/ComboInput';
+import { CROPS } from '@/lib/options';
 
 export default function CropDoctorPage() {
   const t = useT();
+  const locale = useLocale();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [cropType, setCropType] = useState('Wheat');
@@ -30,6 +34,7 @@ export default function CropDoctorPage() {
     const formData = new FormData();
     formData.append('image', file);
     formData.append('crop_type', cropType);
+    formData.append('language', locale);
     try {
       const data = await apiUpload('/diagnoses/', formData);
       setResult(data);
@@ -53,15 +58,24 @@ export default function CropDoctorPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">{t('cropDoctor.cropType')}</label>
-            <select
-              value={cropType}
-              onChange={(e) => setCropType(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 mb-4"
-            >
-              {['Wheat', 'Rice', 'Cotton', 'Sugarcane', 'Maize', 'Tomato', 'Potato', 'Onion'].map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <div className="flex gap-2 mb-4">
+              <ComboInput
+                name="cropType"
+                value={cropType}
+                onChange={(e) => setCropType(e.target.value)}
+                options={CROPS}
+                listId="crop-doctor-crops"
+                placeholder={t('cropDoctor.cropType')}
+              />
+              <VoiceInputButton
+                locale={locale}
+                onResult={(text) => {
+                  const match = CROPS.find(c => c.toLowerCase() === text.toLowerCase() || (t(`cropDoctor.${c.toLowerCase()}`) || '').toLowerCase() === text.toLowerCase());
+                  if (match) setCropType(match);
+                }}
+                disabled={loading}
+              />
+            </div>
 
             <label className="block text-sm font-medium text-slate-700 mb-2">{t('cropDoctor.upload')}</label>
             <div
@@ -81,7 +95,7 @@ export default function CropDoctorPage() {
               ) : (
                 <div className="flex flex-col items-center">
                   <ImageIcon className="w-10 h-10 text-slate-400 mb-2" />
-                  <p className="text-sm text-slate-500">Click to upload image</p>
+                  <p className="text-sm text-slate-500">{t('cropDoctor.upload')}</p>
                 </div>
               )}
             </div>

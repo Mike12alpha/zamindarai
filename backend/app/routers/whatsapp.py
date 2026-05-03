@@ -1,10 +1,48 @@
 from fastapi import APIRouter, Form
 from twilio.twiml.messaging_response import MessagingResponse
+from agents.orchestrator import KisanCouncilOrchestrator
+from app import models
+from app.database import SessionLocal
+import re
 import requests
 
 router = APIRouter(prefix="/whatsapp", tags=["WhatsApp"])
+orchestrator = KisanCouncilOrchestrator()
 
-WHATSAPP_API_BASE = "http://backend:8000"  # Docker service name
+
+def detect_language(text: str) -> str:
+    """Detect if text is primarily Urdu based on Unicode range."""
+    if not text:
+        return "en"
+    urdu_chars = len(re.findall(r'[\u0600-\u06FF\u0750-\u077F]', text))
+    total_chars = len(re.sub(r'\s', '', text))
+    if total_chars == 0:
+        return "en"
+    ratio = urdu_chars / total_chars
+    return "ur" if ratio > 0.3 else "en"
+
+
+def get_or_create_user_by_phone(phone: str):
+    """Lookup or create a placeholder user for WhatsApp interactions."""
+    db = SessionLocal()
+    try:
+        user = db.query(models.User).filter(models.User.phone == phone).first()
+        if not user:
+            # Create a minimal placeholder user
+            user = models.User(
+                email=f"{phone}@whatsapp.zamindarai",
+                name="WhatsApp Farmer",
+                phone=phone,
+                district="Lahore",
+                primary_crop="Wheat",
+                hashed_password="whatsapp"
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        return user
+    finally:
+        db.close()
 
 
 @router.post("/webhook")
@@ -15,25 +53,30 @@ def whatsapp_webhook(
 ):
     """Twilio WhatsApp Business webhook."""
 
-    # Identify or create farmer by phone
-    # For hackathon, use a simple mapping
-    farmer_id = 1  # Lookup by From number in DB
+    language = detect_language(Body)
 
     # Determine if image or text
     if MediaUrl0:
-        # Download image from Twilio
-        # Call /council/chat with image
-        msg = "Photo received. Analyzing..."
+        msg = "تصویر موصول ہوئی۔ تجزیہ ہو رہا ہے..." if language == "ur" else "Photo received. Analyzing..."
     else:
-        # Text to council
         try:
-            res = requests.post(f"{WHATSAPP_API_BASE}/council/chat", data={
-                "farmer_id": farmer_id,
-                "message": Body
-            })
-            msg = res.json()["response"]
+            user = get_or_create_user_by_phone(From)
+            plan = orchestrator.plan(Body, has_image=False, language=language)
+            results = orchestrator.execute(
+                plan=plan,
+                user_id=user.id,
+                image_bytes=None,
+                db_user=user,
+                user_message=Body,
+                language=language
+            )
+            msg = orchestrator.synthesize(Body, plan, results, language=language)
         except Exception as e:
-            msg = f"Sorry, server error. Please try again. ({e})"
+            print(f"[WHATSAPP ERROR] {e}")
+            if language == "ur":
+                msg = "معاف کیجئے، سرور میں خرابی ہے۔ براہ کرم دوبارہ کوشش کریں۔"
+            else:
+                msg = f"Sorry, server error. Please try again."
 
     # Twilio response
     twilio_resp = MessagingResponse()

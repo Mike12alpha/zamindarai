@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, diagnoses, prices, contracts, council, impact, soil
+from app.routers import auth, diagnoses, prices, contracts, council, impact, soil, whatsapp
 from app.database import Base, engine
 import traceback
 import os
@@ -39,6 +39,7 @@ app.include_router(contracts.router)
 app.include_router(council.router)
 app.include_router(impact.router)
 app.include_router(soil.router)
+app.include_router(whatsapp.router)
 
 
 @app.get("/")
