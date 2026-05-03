@@ -16,6 +16,7 @@ export default function CropDoctorPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [cropType, setCropType] = useState('Wheat');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [result, setResult] = useState<any>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -35,11 +36,12 @@ export default function CropDoctorPage() {
     formData.append('image', file);
     formData.append('crop_type', cropType);
     formData.append('language', locale);
+    setError('');
     try {
       const data = await apiUpload('/diagnoses/', formData);
       setResult(data);
     } catch (err: any) {
-      alert(err.message);
+      setError(err.message || t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -101,6 +103,11 @@ export default function CropDoctorPage() {
             </div>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
 
+            {error && (
+              <div className="mt-3 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
             <button
               onClick={handleDiagnose}
               disabled={!file || loading}

@@ -46,16 +46,36 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
 
 export async function apiUpload(path: string, formData: FormData) {
   const token = getToken();
-  const res = await fetch(`${getApiBase()}${path}`, {
-    method: 'POST',
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    body: formData,
-  });
+  const url = `${getApiBase()}${path}`;
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: 'Upload failed' }));
-    throw new Error(err.detail || 'Upload failed');
+  console.log('[apiUpload] URL:', url);
+
+  const headers = new Headers();
+  if (token) {
+    headers.append('Authorization', `Bearer ${token}`);
   }
 
-  return res.json();
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    console.log('[apiUpload] Response status:', res.status);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Upload failed' }));
+      console.error('[apiUpload] Error response:', err);
+      throw new Error(err.detail || 'Upload failed');
+    }
+
+    return res.json();
+  } catch (error: any) {
+    console.error('[apiUpload] Fetch error:', error);
+    if (error.message === 'Failed to fetch') {
+      throw new Error('Network error: unable to reach the server. Please try again.');
+    }
+    throw error;
+  }
 }
