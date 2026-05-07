@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import { useT } from '@/components/I18nProvider';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Sprout, Menu, X, LogOut, User, Sparkles } from 'lucide-react';
+import { Sprout, Menu, X, LogOut, User, Sparkles, LayoutDashboard, Stethoscope, TrendingUp, Leaf, ShieldCheck, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,17 +16,25 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const _t = useT();
   const t = (key: string) => {
-    const messages: any = {
-      en: { dashboard: 'Dashboard', council: 'Kisan Council', login: 'Login', logout: 'Logout', profile: 'Profile' },
-      ur: { dashboard: 'ڈیش بورڈ', council: 'کسان کونسل', login: 'لاگ ان', logout: 'لاگ آؤٹ', profile: 'پروفائل' },
+    const map: Record<string, string> = {
+      dashboard: 'nav.dashboard',
+      council: 'nav.council',
+      login: 'nav.login',
+      logout: 'nav.logout',
+      profile: 'nav.profile',
     };
-    return messages[locale]?.[key] || messages['en']?.[key] || key;
+    return _t(map[key] || key);
   };
 
   const links = [
-    { href: `/${locale}/dashboard`, label: t('dashboard') },
-    { href: `/${locale}/dashboard/council`, label: t('council') },
+    { href: `/${locale}/dashboard`, label: t('dashboard'), icon: <LayoutDashboard className="w-4 h-4" /> },
+    { href: `/${locale}/dashboard/crop-doctor`, label: t('cropDoctor'), icon: <Stethoscope className="w-4 h-4" /> },
+    { href: `/${locale}/dashboard/price-oracle`, label: t('priceOracle'), icon: <TrendingUp className="w-4 h-4" /> },
+    { href: `/${locale}/dashboard/soil-advisor`, label: t('soilAdvisor'), icon: <Leaf className="w-4 h-4" /> },
+    { href: `/${locale}/dashboard/deal-guardian`, label: t('dealGuardian'), icon: <ShieldCheck className="w-4 h-4" /> },
+    { href: `/${locale}/dashboard/council`, label: t('council'), icon: <MessageCircle className="w-4 h-4" /> },
   ];
 
   return (
@@ -47,10 +56,10 @@ export default function Navbar() {
               <Link 
                 key={l.href} 
                 href={l.href} 
-                className="relative text-sm font-medium text-slate-400 hover:text-white transition-colors duration-300 py-1"
+                className="group relative text-sm font-medium text-slate-400 hover:text-white transition-colors duration-300 py-1"
               >
                 {l.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-500 rounded-full transition-all duration-300 hover:w-full group-hover:w-full" />
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-500 rounded-full transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
             <div className="flex items-center gap-3 pl-3 border-l border-white/10">
@@ -101,14 +110,15 @@ export default function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden glass-strong border-t border-white/5 overflow-hidden"
           >
-            <div className="px-4 py-4 space-y-3">
+            <div className="px-4 py-4 space-y-1">
               {user && links.map((l) => (
                 <Link 
                   key={l.href} 
                   href={l.href} 
-                  className="block text-slate-300 hover:text-white font-medium py-2" 
+                  className="flex items-center gap-3 text-slate-300 hover:text-white font-medium py-2.5 px-3 rounded-xl hover:bg-white/5 transition-colors" 
                   onClick={() => setMobileOpen(false)}
                 >
+                  <span className="text-slate-500">{l.icon}</span>
                   {l.label}
                 </Link>
               ))}

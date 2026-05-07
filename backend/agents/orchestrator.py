@@ -2,33 +2,13 @@ import json
 import os
 from typing import Optional, Dict, Any
 from agents import get_agent
-from app.config import get_settings, check_api_key
+from agents.base import BaseAgent
 from core.i18n import get_system_prompt, get_message
 
 
-class KisanCouncilOrchestrator:
+class KisanCouncilOrchestrator(BaseAgent):
     def __init__(self):
-        self._model = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
-        self._temperature = 0
-
-    def predict(self, prompt: str, language: str = "en") -> str:
-        settings = get_settings()
-        ok, msg = check_api_key()
-        if not ok:
-            if language == "ur":
-                return f"[ترتیبی خرابی] {msg}"
-            return f"[CONFIG ERROR] {msg}"
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=settings.GOOGLE_API_KEY)
-            model = genai.GenerativeModel(self._model)
-            response = model.generate_content(prompt)
-            return response.text
-        except Exception as e:
-            print(f"[ORCHESTRATOR AI ERROR] Model={self._model}, Lang={language}, Error: {e}")
-            if language == "ur":
-                return f"[AI خرابی] براہ کرم دوبارہ کوشش کریں۔"
-            return f"[AI ERROR] {str(e)[:200]}"
+        super().__init__(temperature=0)
 
     def plan(self, user_message: str, has_image: bool = False, language: str = "en") -> Dict[str, Any]:
         prompt = get_system_prompt(

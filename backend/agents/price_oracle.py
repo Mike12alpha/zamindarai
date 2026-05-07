@@ -11,8 +11,8 @@ class PriceOracleAgent(BaseAgent):
 
     def get_kb_prices(self, crop: str, location: str, language: str = "en") -> str:
         query = f"{crop} {location} mandi price Pakistan 2025"
-        kb = get_kb()
         try:
+            kb = get_kb()
             docs = kb.search(query, "mandi_prices", k=5)
             return self.format_sources(docs)
         except Exception:
@@ -73,9 +73,18 @@ class PriceOracleAgent(BaseAgent):
         if displayed_rate and displayed_rate > 100:
             displayed_rate = displayed_rate / 40
 
+        # Guard against invalid float values (NaN, inf) that break JSON serialization
+        import math
+        if displayed_rate is not None and not math.isfinite(displayed_rate):
+            displayed_rate = None
+
+        offered_vs_market = None
+        if displayed_rate and math.isfinite(offered_price):
+            offered_vs_market = round(offered_price / displayed_rate, 2)
+
         return {
             "analysis": analysis,
             "market_rate": round(displayed_rate, 2) if displayed_rate else None,
             "is_fair": is_fair,
-            "offered_vs_market": offered_price / displayed_rate if displayed_rate else None
+            "offered_vs_market": offered_vs_market
         }

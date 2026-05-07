@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import { useT } from '@/components/I18nProvider';
 import {
   LayoutDashboard,
   Stethoscope,
@@ -37,26 +38,17 @@ export default function Sidebar() {
   const locale = pathname.split('/')[1] || 'en';
   const { user } = useAuth();
 
+  const _t = useT();
   const t = (key: string) => {
-    const messages: any = {
-      en: {
-        dashboard: 'Dashboard',
-        'crop-doctor': 'Crop Doctor',
-        'price-oracle': 'Price Oracle',
-        'soil-advisor': 'Soil Advisor',
-        'deal-guardian': 'Deal Guardian',
-        council: 'Kisan Council',
-      },
-      ur: {
-        dashboard: 'ڈیش بورڈ',
-        'crop-doctor': 'فصل ڈاکٹر',
-        'price-oracle': 'قیمت کا جانچ',
-        'soil-advisor': 'مٹی کے مشیر',
-        'deal-guardian': 'سودے کا محافظ',
-        council: 'کسان کونسل',
-      },
+    const map: Record<string, string> = {
+      dashboard: 'nav.dashboard',
+      'crop-doctor': 'nav.cropDoctor',
+      'price-oracle': 'nav.priceOracle',
+      'soil-advisor': 'nav.soilAdvisor',
+      'deal-guardian': 'nav.dealGuardian',
+      council: 'nav.council',
     };
-    return messages[locale]?.[key] || messages['en']?.[key] || key;
+    return _t(map[key] || key);
   };
 
   const items = [

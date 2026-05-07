@@ -4,6 +4,8 @@ import { AuthProvider } from '@/lib/auth';
 import Navbar from '@/components/layout/Navbar';
 import I18nProvider from '@/components/I18nProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import QueryProvider from '@/components/QueryProvider';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 export default async function LocaleLayout({
@@ -26,10 +28,22 @@ export default async function LocaleLayout({
       <body className="antialiased min-h-screen transition-colors duration-400">
         <ThemeProvider>
           <I18nProvider messages={messages} locale={locale}>
-            <AuthProvider>
-              <Navbar />
-              {children}
-            </AuthProvider>
+            <QueryProvider>
+              <AuthProvider>
+                <Navbar />
+                {children}
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    style: {
+                      background: 'rgba(15, 23, 42, 0.95)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: '#fff',
+                    },
+                  }}
+                />
+              </AuthProvider>
+            </QueryProvider>
           </I18nProvider>
         </ThemeProvider>
       </body>

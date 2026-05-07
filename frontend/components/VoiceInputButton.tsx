@@ -66,12 +66,19 @@ export default function VoiceInputButton({ onResult, locale, disabled, className
         setNeedsHttps(true);
       }
       const rec = new SpeechRecognition() as SpeechRecognitionInstance;
-      rec.lang = getSpeechLang(locale);
       rec.continuous = false;
       rec.interimResults = false;
       setRecognition(rec);
     }
-  }, [locale]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Update recognition language when locale changes without creating a new instance
+  useEffect(() => {
+    if (recognition) {
+      recognition.lang = getSpeechLang(locale);
+    }
+  }, [locale, recognition]);
 
   const requestMicPermission = useCallback(async (): Promise<boolean> => {
     try {

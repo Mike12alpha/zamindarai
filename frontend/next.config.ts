@@ -5,7 +5,12 @@ const INTERNAL_API_URL = process.env.INTERNAL_API_URL || 'http://localhost:8000'
 const nextConfig: NextConfig = {
   output: 'standalone',
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   async rewrites() {
     return [

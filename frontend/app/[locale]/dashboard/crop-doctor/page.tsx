@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { apiUpload } from '@/lib/api';
 import { useT, useLocale } from '@/components/I18nProvider';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Stethoscope, Loader2, ImageIcon, X, Scan, Sparkles } from 'lucide-react';
 import VoiceInputButton from '@/components/VoiceInputButton';
@@ -20,12 +21,30 @@ export default function CropDoctorPage() {
   const [result, setResult] = useState<any>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
+  const handleFile = (f: File | undefined) => {
     if (f) {
       setFile(f);
       setPreview(URL.createObjectURL(f));
       setResult(null);
+      setError('');
+    }
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFile(e.target.files?.[0]);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const f = e.dataTransfer.files?.[0];
+    if (f && f.type.startsWith('image/')) {
+      handleFile(f);
     }
   };
 
@@ -40,6 +59,9 @@ export default function CropDoctorPage() {
     try {
       const data = await apiUpload('/diagnoses/', formData);
       setResult(data);
+      toast.success('Diagnosis complete!', {
+        description: `Identified issues for ${cropType}`,
+      });
     } catch (err: any) {
       setError(err.message || t('common.error'));
     } finally {
@@ -87,6 +109,8 @@ export default function CropDoctorPage() {
             <label className="block text-sm font-medium text-slate-300 mb-2">{t('cropDoctor.upload')}</label>
             <div
               onClick={() => fileRef.current?.click()}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
               className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center cursor-pointer hover:border-primary-500/40 hover:bg-white/[0.02] transition-all duration-300 group relative overflow-hidden"
             >
               {preview ? (
@@ -109,7 +133,7 @@ export default function CropDoctorPage() {
                 </div>
               )}
             </div>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileInput} />
 
             {error && (
               <motion.div

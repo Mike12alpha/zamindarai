@@ -26,7 +26,12 @@ class BaseAgent(ABC):
             genai.configure(api_key=settings.GOOGLE_API_KEY)
             model = genai.GenerativeModel(self._model)
             response = model.generate_content(prompt)
-            return response.text
+            text = getattr(response, "text", None)
+            if text is None:
+                if language == "ur":
+                    return "[AI جواب خالی] براہ کرم دوبارہ کوشش کریں۔"
+                return "[AI EMPTY RESPONSE] The model returned no text. Please try again."
+            return text
         except Exception as e:
             print(f"[AI ERROR] Model={self._model}, Lang={language}, Error: {e}")
             error_msg = str(e).lower()

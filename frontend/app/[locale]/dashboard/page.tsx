@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useT, useLocale } from '@/components/I18nProvider';
+import RecentActivity from '@/components/RecentActivity';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -127,6 +128,12 @@ export default function DashboardPage() {
             </Link>
           </motion.div>
         ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2">
+          <RecentActivity />
+        </div>
       </div>
 
       <motion.div

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api';
 import { useT, useLocale } from '@/components/I18nProvider';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, Loader2, AlertTriangle, CheckCircle, Download, Sparkles, FileText } from 'lucide-react';
 import VoiceInputButton from '@/components/VoiceInputButton';
@@ -14,6 +15,7 @@ export default function DealGuardianPage() {
   const locale = useLocale();
   const [form, setForm] = useState({ buyer_name: '', crop: 'Wheat', quantity: '500 kg', price_per_kg: '' });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [result, setResult] = useState<any>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,14 +28,20 @@ export default function DealGuardianPage() {
 
   const handleGenerate = async () => {
     setLoading(true);
+    setError('');
     try {
       const data = await apiFetch('/contracts/generate', {
         method: 'POST',
         body: JSON.stringify({ ...form, price_per_kg: parseFloat(form.price_per_kg), language: locale }),
       });
       setResult(data);
+      if (data.is_fair) {
+        toast.success(t('dealGuardian.isFair'), { description: `Contract with ${form.buyer_name} generated` });
+      } else {
+        toast.warning(t('dealGuardian.isUnfair'), { description: `Contract with ${form.buyer_name} generated with warnings` });
+      }
     } catch (err: any) {
-      alert(err.message);
+      setError(err.message || t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -82,6 +90,15 @@ export default function DealGuardianPage() {
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 input-glow transition-all duration-300" />
           </div>
         </div>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm"
+          >
+            {error}
+          </motion.div>
+        )}
         <button onClick={handleGenerate} disabled={loading || !form.buyer_name || !form.price_per_kg}
           className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-500 hover:to-cyan-500 transition-all duration-300 disabled:opacity-50 flex items-center gap-2 hover:shadow-[0_0_30px_rgba(37,99,235,0.2)]">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}

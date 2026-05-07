@@ -20,7 +20,13 @@
     "title": "Kisaan Ka Digital Muhaafiz",
     "subtitle": "AI-powered agricultural protection for Pakistani farmers",
     "ctaPrimary": "Get Started",
-    "ctaSecondary": "Learn More"
+    "ctaSecondary": "Learn More",
+    "badge": "Next-Gen AI for Farmers"
+  },
+  "stats": {
+    "farmers": "Farmers Protected",
+    "accuracy": "AI Accuracy",
+    "districts": "Districts Covered"
   },
   "auth": {
     "loginTitle": "Welcome Back",

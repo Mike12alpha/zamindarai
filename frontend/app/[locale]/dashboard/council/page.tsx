@@ -22,6 +22,33 @@ export default function CouncilPage() {
   const [file, setFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Load persisted messages on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('council_messages');
+    if (stored) {
+      try {
+        setMessages(JSON.parse(stored));
+      } catch {
+        localStorage.removeItem('council_messages');
+      }
+    }
+  }, []);
+
+  // Persist messages on change
+  useEffect(() => {
+    localStorage.setItem('council_messages', JSON.stringify(messages));
+  }, [messages]);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+    }
+  }, [input]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -116,10 +143,25 @@ export default function CouncilPage() {
           ))}
         </AnimatePresence>
         {loading && (
-          <div className="flex items-center gap-2 text-slate-500 text-sm">
-            <Loader2 className="w-4 h-4 animate-spin text-primary-400" /> 
-            <span className="text-slate-400">{t('council.thinking')}</span>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3"
+          >
+            <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+              <Bot className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="glass border border-white/5 rounded-2xl px-4 py-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400">{t('council.thinking')}</span>
+                <span className="flex gap-1">
+                  <span className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </span>
+              </div>
+            </div>
+          </motion.div>
         )}
         <div ref={bottomRef} />
       </div>
@@ -146,12 +188,13 @@ export default function CouncilPage() {
             className="shrink-0"
           />
           <textarea
+            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={t('council.placeholder')}
             rows={1}
-            className="flex-1 resize-none px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none input-glow text-sm text-white placeholder-slate-500"
+            className="flex-1 resize-none px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none input-glow text-sm text-white placeholder-slate-500 max-h-40"
           />
           <button
             onClick={handleSend}

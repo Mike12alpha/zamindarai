@@ -1,9 +1,16 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from app.routers import auth, diagnoses, prices, contracts, council, impact, soil
 from app.database import Base, engine
+from core.cleanup import cleanup_old_uploads
 import traceback
 import os
+import time
+from collections import defaultdict
+
+# Note: farmers router removed — models.Farmer does not exist.
+# Re-add after creating the Farmer model in models.py + schemas.py.
 
 app = FastAPI(
     title="ZamindarAI API",
@@ -21,6 +28,44 @@ app.add_middleware(
     expose_headers=["*"],
     max_age=86400,
 )
+
+# Simple in-memory rate limiter per IP
+_rate_limit_store = defaultdict(list)
+RATE_LIMIT_WINDOW = 60  # seconds
+RATE_LIMIT_MAX_REQUESTS = 30  # requests per window
+AI_RATE_LIMIT_MAX = 10  # AI endpoints are more expensive
+
+
+def _is_rate_limited(client_ip: str, is_ai_endpoint: bool = False) -> bool:
+    now = time.time()
+    window = RATE_LIMIT_WINDOW
+    max_req = AI_RATE_LIMIT_MAX if is_ai_endpoint else RATE_LIMIT_MAX_REQUESTS
+    timestamps = _rate_limit_store[client_ip]
+    # Filter to current window
+    timestamps[:] = [t for t in timestamps if now - t < window]
+    if len(timestamps) >= max_req:
+        return True
+    timestamps.append(now)
+    return False
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    client_ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
+    if isinstance(client_ip, str) and "," in client_ip:
+        client_ip = client_ip.split(",")[0].strip()
+
+    path = request.url.path
+    is_ai = path in ("/diagnoses/", "/prices/check", "/soil/advise", "/contracts/generate", "/council/chat")
+
+    if _is_rate_limited(client_ip, is_ai_endpoint=is_ai):
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Too many requests. Please slow down."}
+        )
+
+    response = await call_next(request)
+    return response
 
 
 @app.on_event("startup")
@@ -43,6 +88,14 @@ def on_startup():
             print(f"[STARTUP WARNING] {msg}")
     except Exception as e:
         print(f"[STARTUP WARNING] Could not validate GOOGLE_API_KEY: {e}")
+
+    # Cleanup old uploads
+    try:
+        deleted = cleanup_old_uploads()
+        if deleted:
+            print(f"[STARTUP] Cleaned up {deleted} old upload files")
+    except Exception as e:
+        print(f"[STARTUP WARNING] Could not clean up uploads: {e}")
 
 app.include_router(auth.router)
 app.include_router(diagnoses.router)
@@ -85,6 +138,15 @@ def health_db():
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
         return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
+
+
+@app.get("/health/ai")
+def health_ai():
+    from app.config import check_api_key
+    ok, msg = check_api_key()
+    if ok:
+        return {"status": "healthy", "ai_service": "configured"}
+    return {"status": "unhealthy", "ai_service": "misconfigured", "detail": msg}
 
 
 @app.get("/agents")

@@ -5,6 +5,7 @@ from typing import List, Dict, Optional
 from core.vector_store import get_kb
 from langchain_core.documents import Document
 import re
+import time
 
 
 class MandiScraper:
@@ -15,14 +16,40 @@ class MandiScraper:
         self.session.headers.update({
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         })
+        self._cache: Dict[str, tuple] = {}
+        self._cache_ttl = 3600  # 1 hour
+
+    def _get_cached(self, key: str) -> Optional[List[Dict]]:
+        if key in self._cache:
+            data, timestamp = self._cache[key]
+            if time.time() - timestamp < self._cache_ttl:
+                return data
+            del self._cache[key]
+        return None
+
+    def _set_cached(self, key: str, data: List[Dict]) -> None:
+        self._cache[key] = (data, time.time())
 
     def scrape_amis_prices(self) -> List[Dict]:
-        """Scrape prices from amis.pk"""
+        """Scrape prices from amis.pk with retry."""
         prices = []
+        url = "https://www.amis.pk/home/price_reporter"
+
+        for attempt in range(3):
+            try:
+                resp = self.session.get(url, timeout=15)
+                resp.raise_for_status()
+                break
+            except requests.RequestException as e:
+                if attempt < 2:
+                    time.sleep(2 ** attempt)  # exponential backoff: 1s, 2s
+                    continue
+                print(f"AMIS scrape failed after 3 attempts: {e}")
+                return prices
+        else:
+            return prices
+
         try:
-            url = "https://www.amis.pk/home/price_reporter"
-            resp = self.session.get(url, timeout=15)
-            resp.raise_for_status()
             soup = BeautifulSoup(resp.text, "html.parser")
 
             tables = soup.find_all("table")
@@ -89,7 +116,12 @@ class MandiScraper:
         return prices
 
     def get_live_prices(self, crop: str = None, location: str = None) -> List[Dict]:
-        """Get real-time prices with smart fallback"""
+        """Get real-time prices with smart fallback and caching."""
+        cache_key = f"{crop or 'all'}_{location or 'all'}"
+        cached = self._get_cached(cache_key)
+        if cached is not None:
+            return cached
+
         scraped = self.scrape_amis_prices()
         if not scraped:
             scraped = self.scrape_fallback_prices()
@@ -99,6 +131,7 @@ class MandiScraper:
         if location:
             scraped = [p for p in scraped if location.lower() in p["market"].lower()]
 
+        self._set_cached(cache_key, scraped)
         return scraped
 
     def ingest_to_kb(self) -> int:

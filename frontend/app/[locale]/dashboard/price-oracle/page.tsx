@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api';
 import { useT, useLocale } from '@/components/I18nProvider';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Loader2, CheckCircle, AlertTriangle, Sparkles, BarChart3 } from 'lucide-react';
 import VoiceInputButton from '@/components/VoiceInputButton';
@@ -14,6 +15,7 @@ export default function PriceOraclePage() {
   const locale = useLocale();
   const [form, setForm] = useState({ crop: 'Wheat', quantity: '1000 kg', location: 'Lahore', offered_price: '' });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [result, setResult] = useState<any>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -22,14 +24,20 @@ export default function PriceOraclePage() {
 
   const handleCheck = async () => {
     setLoading(true);
+    setError('');
     try {
       const data = await apiFetch('/prices/check', {
         method: 'POST',
         body: JSON.stringify({ ...form, offered_price: parseFloat(form.offered_price), language: locale }),
       });
       setResult(data);
+      if (data.is_fair) {
+        toast.success(t('priceOracle.fair'), { description: `Market rate: PKR ${data.market_rate}/kg` });
+      } else {
+        toast.warning(t('priceOracle.unfair'), { description: `Market rate: PKR ${data.market_rate}/kg` });
+      }
     } catch (err: any) {
-      alert(err.message);
+      setError(err.message || t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -82,6 +90,15 @@ export default function PriceOraclePage() {
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 input-glow transition-all duration-300" />
           </div>
         </div>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm"
+          >
+            {error}
+          </motion.div>
+        )}
         <button onClick={handleCheck} disabled={loading || !form.offered_price}
           className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-amber-500 hover:to-orange-500 transition-all duration-300 disabled:opacity-50 flex items-center gap-2 hover:shadow-[0_0_30px_rgba(217,119,6,0.2)]">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
@@ -114,12 +131,42 @@ export default function PriceOraclePage() {
               {result.analysis}
             </div>
             {result.market_rate && (
-              <div className="inline-block glass rounded-xl px-5 py-3 border border-white/5">
-                <div className="flex items-center gap-2 mb-1">
-                  <BarChart3 className="w-4 h-4 text-primary-400" />
-                  <span className="text-xs text-slate-500">{t('priceOracle.marketRate')}</span>
+              <div className="space-y-4">
+                {/* Price comparison bars */}
+                <div className="glass rounded-xl p-4 border border-white/5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs text-slate-500">{t('priceOracle.marketRate')}</span>
+                    <span className="text-sm font-semibold text-white">{t('priceOracle.currency')} {result.market_rate}/kg</span>
+                  </div>
+                  <div className="h-3 bg-white/5 rounded-full overflow-hidden mb-3">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min((result.market_rate / (result.market_rate + parseFloat(form.offered_price || '0')) * 100), 100)}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      className="h-full bg-emerald-500 rounded-full"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-500">{t('priceOracle.offeredPrice')}</span>
+                    <span className="text-sm font-semibold text-white">{t('priceOracle.currency')} {form.offered_price}/kg</span>
+                  </div>
+                  <div className="h-3 bg-white/5 rounded-full overflow-hidden mt-2">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min((parseFloat(form.offered_price || '0') / (result.market_rate + parseFloat(form.offered_price || '0')) * 100), 100)}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                      className={`h-full rounded-full ${result.is_fair ? 'bg-emerald-500' : 'bg-red-500'}`}
+                    />
+                  </div>
                 </div>
-                <p className="text-xl font-bold text-white">{t('priceOracle.currency')} {result.market_rate}/kg</p>
+
+                <div className="inline-block glass rounded-xl px-5 py-3 border border-white/5">
+                  <div className="flex items-center gap-2 mb-1">
+                    <BarChart3 className="w-4 h-4 text-primary-400" />
+                    <span className="text-xs text-slate-500">{t('priceOracle.marketRate')}</span>
+                  </div>
+                  <p className="text-xl font-bold text-white">{t('priceOracle.currency')} {result.market_rate}/kg</p>
+                </div>
               </div>
             )}
           </motion.div>

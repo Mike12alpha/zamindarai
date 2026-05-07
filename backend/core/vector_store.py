@@ -10,10 +10,16 @@ PERSIST_DIR = os.path.join(os.path.dirname(__file__), "..", "chroma_db")
 
 class KnowledgeBase:
     def __init__(self):
-        self.embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+        self._embeddings = None
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=500, chunk_overlap=50
         )
+
+    @property
+    def embeddings(self):
+        if self._embeddings is None:
+            self._embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+        return self._embeddings
 
     def get_store(self, collection_name: str):
         return Chroma(

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api';
 import { useT, useLocale } from '@/components/I18nProvider';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Leaf, Loader2, Sparkles, Sprout } from 'lucide-react';
 import VoiceInputButton from '@/components/VoiceInputButton';
@@ -22,6 +23,7 @@ export default function SoilAdvisorPage() {
     question: 'What fertilizer should I use for wheat?',
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [result, setResult] = useState<any>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -30,14 +32,16 @@ export default function SoilAdvisorPage() {
 
   const handleSubmit = async () => {
     setLoading(true);
+    setError('');
     try {
       const data = await apiFetch('/soil/advise', {
         method: 'POST',
         body: JSON.stringify({ ...form, language: locale }),
       });
       setResult(data);
+      toast.success(t('soilAdvisor.advice'), { description: `Recommendations for ${form.current_crop}` });
     } catch (err: any) {
-      alert(err.message);
+      setError(err.message || t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -87,6 +91,15 @@ export default function SoilAdvisorPage() {
             </div>
           </div>
         </div>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm"
+          >
+            {error}
+          </motion.div>
+        )}
         <button onClick={handleSubmit} disabled={loading}
           className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-emerald-500 hover:to-teal-500 transition-all duration-300 disabled:opacity-50 flex items-center gap-2 hover:shadow-[0_0_30px_rgba(16,185,129,0.2)]">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}

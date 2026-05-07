@@ -238,7 +238,13 @@ def get_system_prompt(agent: str, language: str = "en", **kwargs) -> str:
     """Get the system prompt for an agent in the requested language."""
     prompts = SYSTEM_PROMPTS.get(agent, {})
     template = prompts.get(language, prompts.get("en", ""))
-    return template.format(**kwargs)
+    # Escape braces in string values so user-provided/context text doesn't
+    # collide with Python's str.format() placeholders.
+    safe_kwargs = {
+        k: v.replace("{", "{{").replace("}", "}}") if isinstance(v, str) else v
+        for k, v in kwargs.items()
+    }
+    return template.format(**safe_kwargs)
 
 
 MESSAGES = {
