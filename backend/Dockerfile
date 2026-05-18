@@ -23,6 +23,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 ARG CACHE_BUST=2026-05-18-v2
 COPY . .
 
+# Verify Python imports work before finishing the image
+RUN python -c "import app.main; print('App imports OK')"
+
 # Make startup script executable
 RUN chmod +x startup.sh
 
