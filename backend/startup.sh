@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 
 # Parse DATABASE_URL for connection details
 # Expected format: postgresql://USER:PASS@HOST:PORT/DBNAME
@@ -95,12 +94,21 @@ fi
 echo "[STARTUP] Using database: $DATABASE_URL"
 echo "[STARTUP] Starting uvicorn..."
 
-# Start uvicorn in the background so healthchecks can pass immediately
-uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+# Start uvicorn with nohup so it survives shell signals and logs are captured
+nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > /tmp/uvicorn.log 2>&1 &
 UVICORN_PID=$!
+echo "[STARTUP] uvicorn PID=$UVICORN_PID"
 
-# Run document ingestion in parallel (non-fatal)
-python scripts/ingest_documents.py || echo "[STARTUP] Ingestion warning (non-fatal)"
+# Run document ingestion in a fully detached background subshell (non-fatal)
+(
+    sleep 10
+    echo "[STARTUP] Background ingestion starting..."
+    python scripts/ingest_documents.py || echo "[STARTUP] Ingestion warning (non-fatal)"
+    echo "[STARTUP] Background ingestion finished."
+) &
 
 # Keep container alive as long as uvicorn is running
 wait $UVICORN_PID
+EXIT_CODE=$?
+echo "[STARTUP] uvicorn exited with code $EXIT_CODE"
+exit $EXIT_CODE

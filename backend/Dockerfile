@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application (includes data/ and scripts/ subdirs)
 # Cache-bust to force pickup of updated agent code
-ARG CACHE_BUST=2026-05-03
+ARG CACHE_BUST=2026-05-18
 COPY . .
 
 # Make startup script executable
@@ -31,6 +31,10 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 
 # Create directories for uploads and outputs
 RUN mkdir -p uploads uploads/audio contracts qr_codes chroma_db
+
+# Healthcheck inside the container
+HEALTHCHECK --start-period=60s --interval=30s --timeout=10s --retries=5 \
+  CMD curl -f http://127.0.0.1:8000/health || exit 1
 
 # Expose FastAPI port
 EXPOSE 8000
