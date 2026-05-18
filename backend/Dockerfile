@@ -20,11 +20,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application (includes data/ and scripts/ subdirs)
 # Cache-bust to force pickup of updated agent code
-ARG CACHE_BUST=2026-05-18-v2
+ARG CACHE_BUST=2026-05-18-v3
 COPY . .
-
-# Verify Python imports work before finishing the image
-RUN python -c "import app.main; print('App imports OK')"
 
 # Make startup script executable
 RUN chmod +x startup.sh

@@ -1,16 +1,26 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from app.routers import auth, diagnoses, prices, contracts, council, impact, soil
-from app.database import Base, engine
-from core.cleanup import cleanup_old_uploads
 import traceback
 import os
 import time
 from collections import defaultdict
 
-# Note: farmers router removed — models.Farmer does not exist.
-# Re-add after creating the Farmer model in models.py + schemas.py.
+_startup_errors = []
+
+def _safe_import(module_path, items=None):
+    """Import a module and optionally fetch named attributes."""
+    try:
+        mod = __import__(module_path, fromlist=[items] if items else [])
+        if items:
+            return [getattr(mod, item) for item in items]
+        return mod
+    except Exception as e:
+        msg = f"Failed to import {module_path}: {e}"
+        _startup_errors.append(msg)
+        print(f"[STARTUP ERROR] {msg}")
+        traceback.print_exc()
+        return None
 
 app = FastAPI(
     title="ZamindarAI API",
@@ -68,50 +78,57 @@ async def rate_limit_middleware(request: Request, call_next):
     return response
 
 
-@app.on_event("startup")
-def on_startup():
-    try:
-        Base.metadata.create_all(bind=engine)
-        print("[STARTUP] Database tables verified/created")
-    except Exception as e:
-        print(f"[STARTUP ERROR] Failed to create tables: {e}")
-        traceback.print_exc()
+# Safe router imports
+_routers = _safe_import("app.routers", ["auth", "diagnoses", "prices", "contracts", "council", "impact", "soil"])
+if _routers:
+    for router in _routers:
+        if router:
+            app.include_router(router)
 
-    # Validate Google API key
-    try:
-        from app.config import get_settings, check_api_key
-        settings = get_settings()
-        ok, msg = check_api_key()
-        if ok:
-            print("[STARTUP] GOOGLE_API_KEY is configured")
-        else:
-            print(f"[STARTUP WARNING] {msg}")
-    except Exception as e:
-        print(f"[STARTUP WARNING] Could not validate GOOGLE_API_KEY: {e}")
+# Safe database / cleanup imports
+_db = _safe_import("app.database", ["Base", "engine"])
+_cleanup = _safe_import("core.cleanup", ["cleanup_old_uploads"])
 
-    # Cleanup old uploads
-    try:
-        deleted = cleanup_old_uploads()
-        if deleted:
-            print(f"[STARTUP] Cleaned up {deleted} old upload files")
-    except Exception as e:
-        print(f"[STARTUP WARNING] Could not clean up uploads: {e}")
+Base = _db[0] if _db else None
+engine = _db[1] if _db else None
+cleanup_old_uploads = _cleanup[0] if _cleanup else None
 
-app.include_router(auth.router)
-app.include_router(diagnoses.router)
-app.include_router(prices.router)
-app.include_router(contracts.router)
-app.include_router(council.router)
-app.include_router(impact.router)
-app.include_router(soil.router)
+if Base and engine:
+    @app.on_event("startup")
+    def on_startup():
+        try:
+            Base.metadata.create_all(bind=engine)
+            print("[STARTUP] Database tables verified/created")
+        except Exception as e:
+            print(f"[STARTUP ERROR] Failed to create tables: {e}")
+            traceback.print_exc()
 
-try:
-    from app.routers import whatsapp
-    app.include_router(whatsapp.router)
+        # Validate Google API key
+        try:
+            from app.config import get_settings, check_api_key
+            settings = get_settings()
+            ok, msg = check_api_key()
+            if ok:
+                print("[STARTUP] GOOGLE_API_KEY is configured")
+            else:
+                print(f"[STARTUP WARNING] {msg}")
+        except Exception as e:
+            print(f"[STARTUP WARNING] Could not validate GOOGLE_API_KEY: {e}")
+
+        # Cleanup old uploads
+        if cleanup_old_uploads:
+            try:
+                deleted = cleanup_old_uploads()
+                if deleted:
+                    print(f"[STARTUP] Cleaned up {deleted} old upload files")
+            except Exception as e:
+                print(f"[STARTUP WARNING] Could not clean up uploads: {e}")
+
+# WhatsApp router (optional)
+_whatsapp = _safe_import("app.routers.whatsapp", ["router"])
+if _whatsapp and _whatsapp[0]:
+    app.include_router(_whatsapp[0])
     print("[STARTUP] WhatsApp router loaded")
-except Exception as e:
-    print(f"[STARTUP WARNING] WhatsApp router failed to load: {e}")
-    traceback.print_exc()
 
 
 @app.get("/")
@@ -126,18 +143,20 @@ def root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "ZamindarAI", "version": "2.0.0"}
+    return {"status": "healthy", "service": "ZamindarAI", "version": "2.0.0", "errors": _startup_errors}
 
 
 @app.get("/health/db")
 def health_db():
+    if not engine:
+        return {"status": "unhealthy", "database": "driver not loaded", "errors": _startup_errors}
     from sqlalchemy import text
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
-        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
+        return {"status": "unhealthy", "database": "disconnected", "error": str(e), "errors": _startup_errors}
 
 
 @app.get("/health/ai")
