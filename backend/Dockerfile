@@ -26,6 +26,9 @@ COPY . .
 # Make startup script executable
 RUN chmod +x startup.sh
 
+# Pre-download embedding model so first-start ingestion doesn't timeout
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')"
+
 # Create directories for uploads and outputs
 RUN mkdir -p uploads uploads/audio contracts qr_codes chroma_db
 

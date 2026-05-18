@@ -81,8 +81,7 @@ sys.exit(1)
 if echo "$DATABASE_URL" | grep -q "^postgresql"; then
     if wait_for_postgres; then
         if create_db_if_missing; then
-            echo "[STARTUP] PostgreSQL ready. Running document ingestion..."
-            python scripts/ingest_documents.py || echo "[STARTUP] Ingestion warning (non-fatal)"
+            echo "[STARTUP] PostgreSQL ready."
         else
             echo "[STARTUP] WARNING: Could not verify/create database. Switching to SQLite..."
             export DATABASE_URL="sqlite:///./zamindarai.db"
@@ -95,4 +94,13 @@ fi
 
 echo "[STARTUP] Using database: $DATABASE_URL"
 echo "[STARTUP] Starting uvicorn..."
-exec uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# Start uvicorn in the background so healthchecks can pass immediately
+uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+UVICORN_PID=$!
+
+# Run document ingestion in parallel (non-fatal)
+python scripts/ingest_documents.py || echo "[STARTUP] Ingestion warning (non-fatal)"
+
+# Keep container alive as long as uvicorn is running
+wait $UVICORN_PID
