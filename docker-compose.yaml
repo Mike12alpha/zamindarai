@@ -1,32 +1,12 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: zamindarai
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-zamindarai}
-      POSTGRES_DB: zamindarai
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U zamindarai -d zamindarai"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - zamindarai-net
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://zamindarai:${DB_PASSWORD:-zamindarai}@db:5432/zamindarai}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:///app/db/zamindarai.db}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-flash-latest}
       GEMINI_PRO_MODEL: ${GEMINI_PRO_MODEL:-gemini-pro-latest}
@@ -35,6 +15,7 @@ services:
       APP_SECRET_KEY: ${APP_SECRET_KEY}
       PYTHONUNBUFFERED: "1"
     volumes:
+      - backend_db:/app/db
       - backend_uploads:/app/uploads
       - backend_contracts:/app/contracts
       - backend_qrcodes:/app/qr_codes
@@ -68,7 +49,7 @@ services:
       - zamindarai-net
 
 volumes:
-  postgres_data:
+  backend_db:
   backend_uploads:
   backend_contracts:
   backend_qrcodes:
