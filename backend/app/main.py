@@ -11,7 +11,7 @@ _startup_errors = []
 def _safe_import(module_path, items=None):
     """Import a module and optionally fetch named attributes."""
     try:
-        mod = __import__(module_path, fromlist=[items] if items else [])
+        mod = __import__(module_path, fromlist=items if items else [])
         if items:
             return [getattr(mod, item) for item in items]
         return mod
@@ -78,12 +78,11 @@ async def rate_limit_middleware(request: Request, call_next):
     return response
 
 
-# Safe router imports
-_routers = _safe_import("app.routers", ["auth", "diagnoses", "prices", "contracts", "council", "impact", "soil"])
-if _routers:
-    for router in _routers:
-        if router:
-            app.include_router(router)
+# Safe router imports – each loaded individually so one broken router doesn't kill the rest
+for _router_name in ["auth", "diagnoses", "prices", "contracts", "council", "impact", "soil"]:
+    _router = _safe_import(f"app.routers.{_router_name}", ["router"])
+    if _router and _router[0]:
+        app.include_router(_router[0])
 
 # Safe database / cleanup imports
 _db = _safe_import("app.database", ["Base", "engine"])

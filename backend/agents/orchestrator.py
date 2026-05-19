@@ -10,6 +10,19 @@ class KisanCouncilOrchestrator(BaseAgent):
     def __init__(self):
         super().__init__(temperature=0)
 
+    def run(self, *args, **kwargs) -> dict[str, Any]:
+        """Orchestrator entry-point required by BaseAgent ABC."""
+        user_message = kwargs.get("user_message", "")
+        language = kwargs.get("language", "en")
+        has_image = kwargs.get("has_image", False)
+        plan = self.plan(user_message, has_image=has_image, language=language)
+        results = self.execute(plan, **kwargs)
+        return {
+            "response": self.synthesize(user_message, plan, results, language=language),
+            "plan": plan,
+            "agent_results": results,
+        }
+
     def plan(self, user_message: str, has_image: bool = False, language: str = "en") -> Dict[str, Any]:
         prompt = get_system_prompt(
             "orchestrator_plan",
