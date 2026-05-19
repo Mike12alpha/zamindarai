@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { AuthProvider } from '@/lib/auth';
@@ -7,6 +8,14 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import QueryProvider from '@/components/QueryProvider';
 import { Toaster } from 'sonner';
 import './globals.css';
+
+export const metadata: Metadata = {
+  title: 'ZamindarAI – AI for Pakistani Farmers',
+  description: 'AI-powered agricultural protection system for Pakistani farmers. Crop diagnosis, fair prices, soil advice, and contract protection.',
+  icons: {
+    icon: '/favicon.ico',
+  },
+};
 
 export default async function LocaleLayout({
   children,
